@@ -1,0 +1,90 @@
+name: PR Check
+
+on:
+  pull_request:
+    types: [opened, synchronize, reopened, edited]
+
+permissions:
+  contents: read
+  pull-requests: write
+
+jobs:
+  pr-title:
+    name: PR Title Convention
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check PR title format
+        uses: amannn/action-semantic-pull-request@v5
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          types: |
+            feat
+            fix
+            docs
+            chore
+            refactor
+            test
+          scopes: |
+            study
+            study-vault
+            blog
+            research
+            lab
+            setup-quiz
+            router
+            ci
+            meta
+            readme
+          requireScope: false
+
+  pr-size:
+    name: PR Size Label
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Calculate PR size
+        id: size
+        run: |
+          ADDITIONS=$(gh pr view ${{ github.event.pull_request.number }} --json additions -q '.additions')
+          DELETIONS=$(gh pr view ${{ github.event.pull_request.number }} --json deletions -q '.deletions')
+          TOTAL=$((ADDITIONS + DELETIONS))
+
+          if [ $TOTAL -lt 50 ]; then
+            SIZE="S"
+          elif [ $TOTAL -lt 200 ]; then
+            SIZE="M"
+          elif [ $TOTAL -lt 500 ]; then
+            SIZE="L"
+          else
+            SIZE="XL"
+          fi
+
+          echo "size=$SIZE" >> $GITHUB_OUTPUT
+          echo "total=$TOTAL" >> $GITHUB_OUTPUT
+          echo "PR size: $SIZE ($TOTAL lines changed)"
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Add size label
+        run: |
+          SIZE="${{ steps.size.outputs.size }}"
+          # Remove existing size labels
+          for label in "size/S" "size/M" "size/L" "size/XL"; do
+            gh pr edit ${{ github.event.pull_request.number }} --remove-label "$label" 2>/dev/null || true
+          done
+          # Add new size label (create if doesn't exist)
+          gh label create "size/${SIZE}" --color "$(
+            case $SIZE in
+              S) echo "0e8a16" ;;
+              M) echo "fbca04" ;;
+              L) echo "e99695" ;;
+              XL) echo "d93f0b" ;;
+            esac
+          )" --force 2>/dev/null || true
+          gh pr edit ${{ github.event.pull_request.number }} --add-label "size/${SIZE}"
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
