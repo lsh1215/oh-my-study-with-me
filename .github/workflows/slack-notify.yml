@@ -1,0 +1,83 @@
+name: Slack Notify
+
+on:
+  pull_request:
+    types: [closed]
+    branches: [main]
+
+jobs:
+  notify:
+    name: Slack Notification
+    if: github.event.pull_request.merged == true
+    runs-on: ubuntu-latest
+    steps:
+      - name: Send Slack notification
+        run: |
+          ADDITIONS="${{ github.event.pull_request.additions }}"
+          DELETIONS="${{ github.event.pull_request.deletions }}"
+          TITLE="${{ github.event.pull_request.title }}"
+          AUTHOR="${{ github.event.pull_request.user.login }}"
+          PR_URL="${{ github.event.pull_request.html_url }}"
+          MERGE_SHA="${{ github.event.pull_request.merge_commit_sha }}"
+          SHORT_SHA="${MERGE_SHA:0:7}"
+          COMMIT_URL="${{ github.event.repository.html_url }}/commit/${MERGE_SHA}"
+
+          curl -s -X POST "${{ secrets.SLACK_WEBHOOK_URL }}" \
+            -H 'Content-Type: application/json' \
+            -d @- <<PAYLOAD
+          {
+            "blocks": [
+              {
+                "type": "header",
+                "text": {
+                  "type": "plain_text",
+                  "text": "🔀 PR Merged to main",
+                  "emoji": true
+                }
+              },
+              {
+                "type": "section",
+                "text": {
+                  "type": "mrkdwn",
+                  "text": "*${TITLE}*"
+                }
+              },
+              {
+                "type": "section",
+                "fields": [
+                  {
+                    "type": "mrkdwn",
+                    "text": "*Author:*\n${AUTHOR}"
+                  },
+                  {
+                    "type": "mrkdwn",
+                    "text": "*Size:*\n+${ADDITIONS} / -${DELETIONS}"
+                  }
+                ]
+              },
+              {
+                "type": "actions",
+                "elements": [
+                  {
+                    "type": "button",
+                    "text": {
+                      "type": "plain_text",
+                      "text": "View PR",
+                      "emoji": true
+                    },
+                    "url": "${PR_URL}"
+                  },
+                  {
+                    "type": "button",
+                    "text": {
+                      "type": "plain_text",
+                      "text": "View Commit (${SHORT_SHA})",
+                      "emoji": true
+                    },
+                    "url": "${COMMIT_URL}"
+                  }
+                ]
+              }
+            ]
+          }
+          PAYLOAD
