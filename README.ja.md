@@ -11,7 +11,7 @@
 
 **Claude Code 向け First Principles 学習プラグイン。**
 
-*本を読む。原理を抽出する。理解を検証する。繰り返す。*
+*複数のソースを調査する。深く学ぶ。理解を検証する。明確に書く。*
 
 [はじめる](#はじめる) · [スキル](#スキル) · [ワークフロー](#ワークフロー)
 
@@ -39,11 +39,13 @@
 
 | あなたが...すると | 自動的に... |
 |-------------|---------------------|
+| URL を渡す | すべてのソースを取得し、クロス分析して統合レポートを作成する |
 | 本の PDF を開く | 原理を抽出し、ソクラテス式対話を開始する |
-| 「study kafka」と言う | 本を見つけ、前回の続きから再開する |
+| 「この記事を勉強して」と言う | URL を取得し、構造を分析して深掘りする |
+| GitHub リポジトリを指定する | アーキテクチャ、README、主要な設計を分析する |
 | 章を読み終える | Feynman テスト、コード課題、または設計問題で理解を検証する |
 | 間違いを犯す | 弱い概念を記録し、次のセッションで再確認する |
-| それについて書きたい | Toulmin 論証法でブログの下書きを作成する |
+| それについて書きたい | Toulmin 論証法でブログを作成し、Notion に保存する |
 | 実際に試したい | 監視ツール付きの Docker ラボを起動する |
 
 **コマンドを暗記する必要はありません。** やりたいことを自然な言葉で伝えるだけです。
@@ -54,10 +56,11 @@
 
 | スキル | 内容 |
 |-------|-------------|
-| `study` | 深い学習セッション — PDF 読み込み、First Principles 対話、タイプ別検証、メタ認知トラッキング |
-| `study-vault` | 事前学習ノート生成 — ダッシュボード、クイックリファレンス、概念比較、練習問題 |
+| `research` | マルチソースリサーチ＆統合 — URL、GitHub リポ、ウェブ検索、クロス分析 |
+| `study` | 深い学習セッション — PDF/URL/GitHub 読み込み、First Principles 対話、タイプ別検証、メタ認知トラッキング |
+| `study-vault` | 事前学習ノート生成 — ダッシュボード、クイックリファレンス、概念比較、練習問題。PDF、URL、GitHub 対応 |
 | `setup-quiz` | ⚠️ *実験的* — Slack 日次クイズシステム、GitHub Actions + Leitner 間隔反復法 |
-| `blog` | 技術ブログ執筆 — Orwell の明確さ、Toulmin 論証、Steel Man 反論 |
+| `blog` | 技術ブログ執筆 — Orwell の明確さ、Toulmin 論証、Steel Man 反論、Notion 連携 |
 | `lab` | Docker ラボ環境 — Kafka、ES、MySQL、Redis と Prometheus + Grafana |
 
 ---
@@ -68,19 +71,23 @@
 
 **`swm` プレフィックス**（推奨）
 ```
+swm:research kafka consensus
 swm:study kafka
+swm:study https://article.com/deep-dive
 swm:blog kafka producer
 swm:lab redis
 ```
 
 **スラッシュコマンド**（明示的）
 ```
+/oh-my-study-with-me:research kafka
 /oh-my-study-with-me:study kafka
 /oh-my-study-with-me:blog kafka producer
 ```
 
 **コロンパターン**（スキル名のみ）
 ```
+research : kafka consensus
 study : kafka
 blog : kafka producer
 lab : redis
@@ -88,22 +95,40 @@ lab : redis
 
 **自然言語**（話しかけるだけ）
 ```
-Let's study the Kafka book
-Write a blog post about producers
-Spin up a Redis lab
+Kafka のコンセンサスプロトコルについてリサーチして
+Kafka の本を勉強しよう
+この GitHub リポを分析して
+プロデューサーについてブログを書いて Notion に保存
+Redis ラボを起動して
 ```
 
 英語と韓国語の両方に対応しています。
 
 ---
 
+## ソースサポート
+
+| ソースタイプ | research | study | study-vault |
+|------------|----------|-------|-------------|
+| 複数 URL | ✅ メイン | — | — |
+| 単一 Web URL | ✅ | ✅ | ✅ |
+| GitHub リポ | ✅ | ✅ | ✅ |
+| YouTube（ベストエフォート） | ✅ | ✅ | — |
+| PDF | — (study を使用) | ✅ | ✅ |
+| フリーテキスト | ✅ | ✅ | — |
+
+---
+
 ## ワークフロー
 
 ```
-study-vault ─── まず本全体の構造を把握する
+research ─── 複数のソースを収集・統合する
+  └── リサーチサマリー + ソースノート
+                    ↓
+study-vault ─── まずソース全体の構造を把握する
   └── Dashboard + Quick-Reference + Concept-Compare + Practice
                     ↓
-study ─── 各章を深く掘り下げる (🟦🟩🟨🟥⬜ メタ認知)
+study ─── 各セクションを深く掘り下げる (🟦🟩🟨🟥⬜ メタ認知)
   ├── 検証 → quiz_bank.json
   │                    ↓
   │   setup-quiz ─── GitHub Actions による Slack 日次クイズ
@@ -138,9 +163,10 @@ study ─── 各章を深く掘り下げる (🟦🟩🟨🟥⬜ メタ認知
 ## 必要なもの
 
 - [Claude Code](https://docs.anthropic.com/claude-code) CLI
-- プロジェクトの `books/` ディレクトリにある本の PDF
+- PDF、URL、または GitHub リポのいずれかの学習素材
 - Docker（`lab` スキルのみ）
 - Slack + GitHub Actions（`setup-quiz` スキルのみ）
+- Notion MCP（`blog` の Notion 連携用 — オプション、なければローカルファイルに保存）
 
 ---
 
@@ -152,6 +178,6 @@ MIT — [LICENSE](LICENSE) を参照
 
 <div align="center">
 
-**深く読む。誠実に検証する。明確に書く。**
+**広く調査する。深く学ぶ。誠実に検証する。明確に書く。**
 
 </div>

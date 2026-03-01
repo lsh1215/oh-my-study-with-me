@@ -11,7 +11,7 @@
 
 **First Principles learning plugin for Claude Code.**
 
-*Read a book. Extract the principles. Validate your understanding. Repeat.*
+*Research multiple sources. Study deeply. Validate your understanding. Write clearly.*
 
 [Get Started](#get-started) · [Skills](#skills) · [Workflow](#workflow)
 
@@ -39,11 +39,13 @@ That's it. Start studying. The short alias is **`swm`**.
 
 | When You... | It Automatically... |
 |-------------|---------------------|
+| Give it URLs to research | Fetches all sources, cross-analyzes, produces a synthesis |
 | Open a book PDF | Extracts principles, starts Socratic dialogue |
-| Say "study kafka" | Finds the book, picks up where you left off |
+| Say "study this article" | Fetches the URL, extracts structure, deep dives into it |
+| Point it at a GitHub repo | Analyzes architecture, README, key design decisions |
 | Finish a chapter | Validates with Feynman test, code challenge, or design problem |
 | Get something wrong | Tracks the weak concept, revisits it next session |
-| Want to write about it | Drafts a blog with Toulmin argumentation |
+| Want to write about it | Drafts a blog with Toulmin argumentation, saves to Notion |
 | Want hands-on practice | Spins up a Docker lab with monitoring |
 
 **You don't need to memorize commands.** Just describe what you want in natural language.
@@ -54,10 +56,11 @@ That's it. Start studying. The short alias is **`swm`**.
 
 | Skill | What It Does |
 |-------|-------------|
-| `study` | Deep learning session — PDF reading, First Principles dialogue, type-based validation, metacognition tracking |
-| `study-vault` | Pre-study note generation — dashboard, quick-reference, concept-compare, practice problems |
+| `research` | Multi-source research & synthesis — URLs, GitHub repos, web search, cross-analysis |
+| `study` | Deep learning session — PDF/URL/GitHub reading, First Principles dialogue, type-based validation, metacognition tracking |
+| `study-vault` | Pre-study note generation — dashboard, quick-reference, concept-compare, practice problems. Supports PDF, URL, GitHub |
 | `setup-quiz` | ⚠️ *Experimental* — Slack daily quiz system, GitHub Actions + Leitner spaced repetition |
-| `blog` | Technical blog writing — Orwell clarity, Toulmin argumentation, Steel Man rebuttal |
+| `blog` | Technical blog writing — Orwell clarity, Toulmin argumentation, Steel Man rebuttal, Notion integration |
 | `lab` | Docker lab environments — Kafka, ES, MySQL, Redis with Prometheus + Grafana |
 
 ---
@@ -68,19 +71,23 @@ Four ways to call any skill:
 
 **`swm` prefix** (recommended)
 ```
+swm:research kafka consensus
 swm:study kafka
+swm:study https://article.com/deep-dive
 swm:blog kafka producer
 swm:lab redis
 ```
 
 **Slash commands** (explicit)
 ```
+/oh-my-study-with-me:research kafka
 /oh-my-study-with-me:study kafka
 /oh-my-study-with-me:blog kafka producer
 ```
 
 **Colon patterns** (bare skill name)
 ```
+research : kafka consensus
 study : kafka
 blog : kafka producer
 lab : redis
@@ -88,8 +95,10 @@ lab : redis
 
 **Natural language** (just talk)
 ```
+Research these articles about Kafka consensus
 Let's study the Kafka book
-Write a blog post about producers
+Study this GitHub repo
+Write a blog post about producers and save to Notion
 Spin up a Redis lab
 ```
 
@@ -97,13 +106,29 @@ Works in both English and Korean.
 
 ---
 
+## Source Support
+
+| Source Type | research | study | study-vault |
+|------------|----------|-------|-------------|
+| Multiple URLs | ✅ Primary | — | — |
+| Single Web URL | ✅ | ✅ | ✅ |
+| GitHub repo | ✅ | ✅ | ✅ |
+| YouTube (best-effort) | ✅ | ✅ | — |
+| PDF | — (use study) | ✅ | ✅ |
+| Freeform text | ✅ | ✅ | — |
+
+---
+
 ## Workflow
 
 ```
-study-vault ─── Grasp the full book structure first
+research ─── Gather and synthesize from multiple sources
+  └── Research summary + source notes
+                    ↓
+study-vault ─── Grasp the source structure first
   └── Dashboard + Quick-Reference + Concept-Compare + Practice
                     ↓
-study ─── Deep dive into each chapter (🟦🟩🟨🟥⬜ metacognition)
+study ─── Deep dive into each section (🟦🟩🟨🟥⬜ metacognition)
   ├── Validation → quiz_bank.json
   │                    ↓
   │   setup-quiz ─── Daily Slack quizzes via GitHub Actions
@@ -138,9 +163,10 @@ Weak concepts are automatically prioritized in your next session.
 ## Requirements
 
 - [Claude Code](https://docs.anthropic.com/claude-code) CLI
-- Book PDFs in your project's `books/` directory
+- PDF, URL, or GitHub repo as study material (any one is enough)
 - Docker (for `lab` skill only)
 - Slack + GitHub Actions (for `setup-quiz` skill only)
+- Notion MCP (for `blog` Notion integration — optional, falls back to local file)
 
 ---
 
@@ -152,6 +178,6 @@ MIT — see [LICENSE](LICENSE)
 
 <div align="center">
 
-**Read deeply. Validate honestly. Write clearly.**
+**Research widely. Study deeply. Validate honestly. Write clearly.**
 
 </div>

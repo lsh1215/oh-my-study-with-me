@@ -206,10 +206,56 @@ After completing the draft, review it against this checklist:
 
 Show the review results to the user, then present the revised final version.
 
-### Phase 4: Saving
+### Phase 4: Saving to Notion
 
-- Once the user confirms, save to Notion.
-- Before saving, confirm with the user where in Notion to save it.
+Once the user confirms the final draft, save it to Notion.
+
+#### Step 1: Ask destination
+Ask the user: "Where should I save this? Options:"
+1. **Existing Notion database** (e.g., a blog posts database)
+2. **New Notion page** (standalone or under a parent page)
+3. **Local file** (fallback if Notion is unavailable)
+
+#### Step 2A: Existing Database Flow
+1. Use `notion-search` to find the user's blog/post databases. Show results and let the user pick.
+2. Use `notion-fetch` on the selected database to get the schema (properties, data_source_id).
+3. Map the blog post to the database properties:
+   - Title property → blog post title
+   - Status property → "Draft" or as user prefers
+   - Tags/Category property → relevant tags from the blog content
+   - Date property → today's date
+   - Other properties → ask the user if unclear
+4. Fetch the Notion enhanced Markdown spec from `notion://docs/enhanced-markdown-spec` (via ReadMcpResourceTool).
+5. Convert the blog content to Notion-compatible Markdown format.
+6. Use `notion-create-pages` with the correct data_source_id, properties, and content.
+7. Show the created page URL to the user.
+
+#### Step 2B: New Page Flow
+1. Ask the user: create at workspace level, or under a specific parent page?
+2. If under a parent page, use `notion-search` to find the parent page.
+3. Fetch the Notion enhanced Markdown spec from `notion://docs/enhanced-markdown-spec` (via ReadMcpResourceTool).
+4. Convert the blog content to Notion-compatible Markdown format.
+5. Use `notion-create-pages` with page_id parent (or no parent for workspace level) and content.
+6. Show the created page URL to the user.
+
+#### Step 2C: Local Fallback
+If Notion MCP tools are unavailable or the user prefers local saving:
+- Save as `blog-drafts/{topic}.md` in the project directory.
+- Include the full blog post content with frontmatter metadata.
+
+#### Post-save
+- Show the Notion URL (or local file path).
+- Offer to update properties (status, tags, etc.) if the user wants changes.
+- Suggest: "You can update this page later with `notion-update-page`."
+
+---
+
+### Phase 2 Enhancement: Source Verification
+
+When writing the draft (Phase 2), if the blog references web sources or makes claims about external tools/technologies:
+1. Use WebFetch or WebSearch to verify key claims and get current data.
+2. Use WebSearch to find related articles that could serve as references.
+3. Include verified references in a "References" section at the end of the blog post.
 
 ---
 

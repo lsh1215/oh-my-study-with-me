@@ -1,22 +1,22 @@
 {
   "$schema": "https://anthropic.com/claude-code/marketplace.schema.json",
   "name": "swm",
-  "description": "First Principles-based technical learning plugin - PDF study, structured notes, Slack quizzes, blog writing, Docker labs",
+  "description": "First Principles-based technical learning plugin - multi-source research, PDF/URL/GitHub study, structured notes, Slack quizzes, blog writing with Notion, Docker labs",
   "owner": {
     "name": "leesanghun"
   },
   "plugins": [
     {
       "name": "oh-my-study-with-me",
-      "description": "A First Principles-based technical learning plugin. Integrates book PDF study, structured note generation, Slack daily quizzes, technical blog writing, and Docker lab environments into a single workflow.",
-      "version": "0.1.0",
+      "description": "A First Principles-based technical learning plugin. Multi-source research and study (PDF, URL, GitHub), structured note generation, Slack daily quizzes, technical blog writing with Notion integration, and Docker lab environments.",
+      "version": "0.2.0",
       "author": {
         "name": "leesanghun"
       },
       "source": "./",
       "category": "education",
       "homepage": "https://github.com/lsh1215/oh-my-study-with-me",
-      "tags": ["study", "learning", "first-principles", "spaced-repetition", "blog", "lab", "quiz"]
+      "tags": ["study", "learning", "first-principles", "research", "multi-source", "notion", "spaced-repetition", "blog", "lab", "quiz"]
     }
   ]
 }

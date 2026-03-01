@@ -7,21 +7,54 @@ user-invocable: true
 # Deep Study - First Principles Study Skill
 
 ## Argument Parsing
-- No argument → start from book selection
-- `[book name keyword]` → start that book immediately
+- No argument → start from source selection
+- `[book name keyword]` → start that book immediately (PDF flow)
+- `[URL]` → fetch and study the URL content (web/GitHub/YouTube flow)
 - `continue` → resume previous study session (refer to progress file)
 
 Argument: $ARGUMENTS
 
-## Phase 0: Book Selection
+## Phase 0: Source Selection
 
+Detect the source type from the argument or user input:
+
+### URL Detection
+- **Web article URL** (any http/https not matching below) → Web flow
+- **GitHub URL** (`github.com/{owner}/{repo}`) → GitHub flow
+- **YouTube URL** (`youtube.com/watch` or `youtu.be/`) → YouTube flow (best-effort)
+- **No URL detected** → check for book/PDF keywords, or ask the user
+
+### Web Article Flow
+1. Use WebFetch to retrieve the article content.
+2. Extract the article structure (headings, sections).
+3. Show the structure to the user and ask which section(s) to focus on.
+4. Proceed to Phase 1 with the selected section content.
+
+### GitHub Repo Flow
+1. Use WebFetch to fetch the README.
+2. Use `gh` CLI or WebFetch to get the repo structure (directory tree, key files).
+3. Show the repo overview to the user and ask what aspect to study (architecture, specific module, design patterns, etc.).
+4. Fetch the relevant source files for the chosen aspect.
+5. Proceed to Phase 1 with the fetched content.
+
+### YouTube Flow (Best-Effort)
+1. Use WebFetch to get the YouTube page content (title, description, any transcript info).
+2. If transcript content is available, use it as the study material.
+3. If only description is available, use it as a starting point and supplement with WebSearch on the topic.
+4. Proceed to Phase 1 with whatever content was extracted.
+
+### Book/PDF Flow (Existing Behavior)
 1. Show the list of subfolders and PDF files under `책 목록/`.
 2. When the user selects a book, read the front pages (1–10) of the PDF to **extract the table of contents**.
 3. Show the table of contents and ask the user which chapter to start from.
 
-## Phase 1: Chapter Reading + Core Principle Extraction
+## Phase 1: Content Reading + Core Principle Extraction
 
-1. Read the selected chapter's page range from the PDF (20 pages at a time).
+1. Read the selected section from the source material:
+   - **PDF**: Read the chapter's page range (20 pages at a time).
+   - **Web article**: Work with the fetched article section content.
+   - **GitHub repo**: Analyze the relevant source files and documentation.
+   - **YouTube**: Work with the extracted transcript or description content.
 2. Extract **core principles** from the content read.
    - No simple summaries. Organize around the question: "What is the fundamental problem this chapter is solving?"
    - Format:
@@ -219,14 +252,17 @@ Once verification is passed, organize what was learned in this session into a sh
 ```
 
 ### Saving
-- Save as `{chapter name}.md` under `study-notes/{category}/{book name}/`.
+- **PDF sources**: Save as `{chapter name}.md` under `study-notes/{category}/{book name}/`.
+- **Web/GitHub/YouTube sources**: Save as `{topic}.md` under `sources/{category}/{source-name}/`.
 - This memo is used as material when writing a blog post later with `/oh-my-study-with-me:blog`.
 
 > **Note**: Full blog post writing is handled separately by calling the `/oh-my-study-with-me:blog` skill. This skill focuses on study only.
 
 ## Phase 5: Progress Record
 
-Record the study progress in `books/{category}/{book name}_progress.md`.
+Record the study progress:
+- **PDF sources**: Save in `books/{category}/{book name}_progress.md`.
+- **Web/GitHub/YouTube sources**: Save in `sources/{category}/{source-name}/progress.md`.
 
 ```markdown
 # [Book Name] Study Progress
@@ -257,7 +293,9 @@ Record the study progress in `books/{category}/{book name}_progress.md`.
 
 ## Important Notes
 
-- Never copy-paste book content verbatim.
+- Never copy-paste source content verbatim.
 - If the user says "I don't know," don't give the answer immediately — ask a guiding question first.
 - Never skip the verification step. Phase 3 must be completed before moving to Phase 4.
 - When reading PDFs, read a maximum of 20 pages at a time. If a chapter is long, read it in segments.
+- For web sources, if the fetched content is insufficient, use WebSearch to supplement.
+- For GitHub repos, focus on architecture and design decisions — do not dump entire codebases.

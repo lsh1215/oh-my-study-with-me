@@ -1,7 +1,7 @@
 {
   "name": "oh-my-study-with-me",
-  "version": "0.1.0",
-  "description": "A First Principles-based technical learning plugin. Integrates book PDF study, structured note generation, Slack daily quizzes, technical blog writing, and Docker lab environments into a single workflow.",
+  "version": "0.2.0",
+  "description": "A First Principles-based technical learning plugin. Multi-source research and study (PDF, URL, GitHub), structured note generation, Slack daily quizzes, technical blog writing with Notion integration, and Docker lab environments.",
   "author": {
     "name": "leesanghun"
   },
@@ -11,6 +11,9 @@
     "study",
     "learning",
     "first-principles",
+    "research",
+    "multi-source",
+    "notion",
     "spaced-repetition",
     "blog",
     "lab",

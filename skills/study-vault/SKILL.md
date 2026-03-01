@@ -1,14 +1,15 @@
 ---
-description: Pre-generates structured study notes from a book PDF. Creates a Study Vault including a dashboard, quick reference tables, concept comparisons, and practice problems. Use this skill when the user mentions vault, note generation, or pre-study.
-argument-hint: "[book-name keyword]" or "[book-name] [chapter-range]"
+description: Pre-generates structured study notes from a source (book PDF, web URL, or GitHub repo). Creates a Study Vault including a dashboard, quick reference tables, concept comparisons, and practice problems. Use this skill when the user mentions vault, note generation, or pre-study.
+argument-hint: "[book-name keyword]" or "[URL]" or "[book-name] [chapter-range]"
 user-invocable: true
 ---
 
 # Study Vault - Pre-Note Generation Skill
 
 ## Argument Parsing
-- No argument → start from book selection
-- `[book-name keyword]` → start immediately with that book
+- No argument → start from source selection
+- `[book-name keyword]` → start immediately with that book (PDF flow)
+- `[URL]` → fetch and generate vault from the URL content (web/GitHub flow)
 - `[book-name] [chapter-range]` → specific chapters only (e.g., `kafka Ch3-Ch5`)
 
 Argument: $ARGUMENTS
@@ -42,6 +43,22 @@ The two skills are complementary:
 
 ## Phase 1: Source Exploration and Structure Analysis
 
+Detect the source type from the argument or user input:
+
+### Web URL Flow
+1. Use WebFetch to retrieve the article/documentation content.
+2. Extract the content structure (headings, sections, subsections).
+3. Build a **topic hierarchy** from the extracted structure.
+4. Continue to step 3 below.
+
+### GitHub Repo Flow
+1. Use WebFetch to fetch the README.
+2. Use `gh` CLI or WebFetch to get the repo structure (directory tree, key files).
+3. Identify the main architectural components and documentation sections.
+4. Build a **topic hierarchy** from the repo structure and README.
+5. Continue to step 3 below.
+
+### Book/PDF Flow (Existing Behavior)
 1. Read the PDF of the book the user selected.
    - If over 100MB, use `pdftotext` CLI (specify page range)
    - Extract the table of contents pages first (usually the first 5–15 pages).
@@ -62,7 +79,10 @@ The two skills are complementary:
 
 ## Phase 2: Content Analysis and Tag Design
 
-1. Read each chapter in the selected scope, 20 pages at a time.
+1. Read each section from the source material:
+   - **PDF**: Read each chapter in the selected scope, 20 pages at a time.
+   - **Web URL**: Work with the fetched article sections.
+   - **GitHub repo**: Analyze key source files, documentation, and architectural components.
 2. Extract from each chapter:
    - **Key concepts** list (name + one-line definition)
    - **Concept dependency relationships** (A must be understood before B)
@@ -271,7 +291,9 @@ When deep studying with `/oh-my-study-with-me:study` after vault creation:
 
 ## Notes
 
-- Do not copy book content verbatim. Extract the essence and restructure from the learner's perspective.
+- Do not copy source content verbatim. Extract the essence and restructure from the learner's perspective.
 - Read PDFs in 20-page chunks. Use pdftotext for PDFs over 100MB.
+- For web sources, if the fetched content is insufficient, use WebSearch to supplement.
+- For GitHub repos, focus on architecture, design decisions, and key implementations — do not dump entire codebases.
 - Vault generation takes time. Report progress to the user step by step.
 - If a vault already exists, confirm with the user whether to overwrite or append.

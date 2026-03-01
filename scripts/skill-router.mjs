@@ -51,9 +51,11 @@ const SKILL_DEFINITIONS = {
       /book\s*.{0,10}(overview|structure|outline)\s*.{0,10}(note|generat|creat)/i,
       /vault\s*.{0,10}(creat|generat|start|build)/i,
       /structured\s*.{0,10}notes?\b/i,
+      /vault\s*.{0,15}(?:from|for)\s*.{0,10}(?:https?:\/\/|github\.com|url|repo)/i,
       // Korean
       /책\s*.{0,10}(전체|구조|조감|개요)\s*.{0,10}(파악|정리|노트|생성)/,
       /vault\s*.{0,10}(만들|생성|시작)/i,
+      /(?:URL|레포|링크)\s*.{0,10}(?:vault|볼트)\s*.{0,10}(?:만들|생성)/i,
     ],
   },
 
@@ -75,11 +77,14 @@ const SKILL_DEFINITIONS = {
       /(?:deep|thorough|proper)(?:ly)?\s*.{0,10}(?:study|learn|dig|understand)/i,
       /(?:previous|last)\s*.{0,10}(?:study|learn|session)\s*.{0,10}(?:continu|resume|pick up)/i,
       /let'?s\s+(?:study|learn)\b/i,
+      /(?:study|learn)\s*.{0,15}(?:https?:\/\/|github\.com)/i,
+      /(?:study|learn)\s*.{0,10}(?:this\s)?(?:article|url|repo|page)/i,
       // Korean
       /(?:책|pdf|챕터|chapter)\s*.{0,15}(?:공부|학습|읽|시작|이어)/i,
       /(?:공부|학습)\s*.{0,10}(?:하자|시작|하고|할래|해줘|하겠)/,
       /(?:깊이|깊게|제대로)\s*.{0,10}(?:공부|학습|파고|파자|파보)/,
       /(?:이전|지난)\s*.{0,10}(?:학습|공부)\s*.{0,10}(?:이어|계속|continue)/i,
+      /(?:이\s?글|이\s?URL|이\s?레포)\s*.{0,10}(?:공부|학습|읽|분석)/,
     ],
   },
 
@@ -112,9 +117,34 @@ const SKILL_DEFINITIONS = {
     ],
   },
 
+  research: {
+    file: "research/SKILL.md",
+    desc: "Research (multi-source gathering & synthesis)",
+    keywords: [
+      /\bresearch\b/i,
+      /\binvestigat/i,
+      /\bgather[\s]?sources?\b/i,
+      /\bmulti[\s-]?source\b/i,
+      // Korean
+      /\b리서치\b/,
+      /\b조사\b/,
+      /\b자료[\s]?수집\b/,
+      /\b자료[\s]?조사\b/,
+    ],
+    phrases: [
+      /(?:research|investigate|gather|survey)\s*.{0,15}(?:about|on|into|sources|urls|links)/i,
+      /(?:gather|collect|analyze)\s*.{0,10}(?:sources|articles|urls|links|information)/i,
+      /(?:compare|synthesize|survey)\s*.{0,10}(?:sources|articles|approaches|options)/i,
+      // Korean
+      /(?:리서치|조사|자료)\s*.{0,15}(?:해줘|하자|시작|해봐|모아)/,
+      /(?:조사|분석|비교)\s*.{0,10}(?:해줘|하자|시작|해봐)/,
+      /(?:자료|소스|링크)\s*.{0,10}(?:수집|모으|분석|정리)/,
+    ],
+  },
+
   blog: {
     file: "blog/SKILL.md",
-    desc: "Blog (technical blog writing)",
+    desc: "Blog (technical blog writing + Notion)",
     keywords: [
       /\bblog\b/i,
       /\btech[\s-]?blog\b/i,
@@ -127,10 +157,14 @@ const SKILL_DEFINITIONS = {
       /(?:blog|tech\s*post|article)\s*.{0,15}(?:writ|draft|start|creat)/i,
       /(?:writ|draft)\s*.{0,10}(?:blog|post|article)/i,
       /(?:draft|review|proofread)\s*.{0,10}(?:the\s)?(?:post|article|blog)/i,
+      /(?:blog|post|article)\s*.{0,15}(?:notion|save|publish)/i,
+      /(?:notion)\s*.{0,10}(?:blog|post|article|save|publish)/i,
       // Korean
       /(?:블로그|기술\s*글)\s*.{0,15}(?:쓰|작성|시작|써줘|쓰자)/,
       /(?:글|포스트|아티클)\s*.{0,10}(?:쓰자|써줘|작성|시작)/,
       /(?:초안|리뷰|검수)\s*.{0,10}(?:해줘|하자|시작|보자)/,
+      /(?:블로그|글)\s*.{0,15}(?:노션|저장|발행)/,
+      /(?:노션)\s*.{0,10}(?:블로그|글|저장|발행)/,
     ],
   },
 
@@ -160,9 +194,11 @@ const SKILL_DEFINITIONS = {
 };
 
 // Priority: longer names first (study-vault > study), specific skills first (setup-quiz > study)
+// research before blog to catch "research and write" patterns correctly
 const SKILL_PRIORITY = [
   "study-vault",
   "setup-quiz",
+  "research",
   "blog",
   "lab",
   "study", // study has the broadest patterns, so it goes last
