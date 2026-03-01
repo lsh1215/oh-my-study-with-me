@@ -1,130 +1,148 @@
+<div align="center">
+
 # oh-my-study-with-me
 
-A First Principles-based technical learning plugin for Claude Code.
+[![GitHub stars](https://img.shields.io/github/stars/lsh1215/oh-my-study-with-me?style=flat&color=yellow)](https://github.com/lsh1215/oh-my-study-with-me/stargazers)
+[![License: MIT](https://img.shields.io/badge/License-MIT-green.svg)](https://opensource.org/licenses/MIT)
 
-Integrates book PDF study, structured note generation, Slack daily quizzes, technical blog writing, and Docker lab environments into a single workflow.
+**First Principles learning plugin for Claude Code.**
+
+*Read a book. Extract the principles. Validate your understanding. Repeat.*
+
+[Get Started](#get-started) · [Skills](#skills) · [Workflow](#workflow)
+
+</div>
+
+---
+
+## Get Started
+
+**Step 1:** Register the marketplace
+```
+/plugin marketplace add https://github.com/lsh1215/oh-my-study-with-me
+```
+
+**Step 2:** Install the plugin
+```
+/plugin install oh-my-study-with-me
+```
+
+That's it. Start studying.
+
+---
+
+## What It Does
+
+| When You... | It Automatically... |
+|-------------|---------------------|
+| Open a book PDF | Extracts principles, starts Socratic dialogue |
+| Say "study kafka" | Finds the book, picks up where you left off |
+| Finish a chapter | Validates with Feynman test, code challenge, or design problem |
+| Get something wrong | Tracks the weak concept, revisits it next session |
+| Want to write about it | Drafts a blog with Toulmin argumentation |
+| Want hands-on practice | Spins up a Docker lab with monitoring |
+
+**You don't need to memorize commands.** Just describe what you want in natural language.
+
+---
 
 ## Skills
 
-| Skill | Invocation | Description |
-|-------|------------|-------------|
-| **study** | `/oh-my-study-with-me:study` | First Principles learning session (PDF → principle extraction → Socratic dialogue → type-based validation) |
-| **study-vault** | `/oh-my-study-with-me:study-vault` | Generate structured study notes from book PDFs (dashboard, quick-reference, concept-compare, practice) |
-| **setup-quiz** | `/oh-my-study-with-me:setup-quiz` | Build a GitHub Actions + Slack daily review quiz system (Leitner spaced repetition) |
-| **blog** | `/oh-my-study-with-me:blog` | Technical blog writing (Orwell style + Toulmin argumentation + Steel Man rebuttal) |
-| **lab** | `/oh-my-study-with-me:lab` | Docker Compose lab environments (Kafka, ES, MySQL, Redis + monitoring) |
+| Skill | What It Does |
+|-------|-------------|
+| `study` | Deep learning session — PDF reading, First Principles dialogue, type-based validation, metacognition tracking |
+| `study-vault` | Pre-study note generation — dashboard, quick-reference, concept-compare, practice problems |
+| `setup-quiz` | Slack daily quiz system — GitHub Actions + Leitner spaced repetition |
+| `blog` | Technical blog writing — Orwell clarity, Toulmin argumentation, Steel Man rebuttal |
+| `lab` | Docker lab environments — Kafka, ES, MySQL, Redis with Prometheus + Grafana |
 
-## Installation
+---
 
-```bash
-# 1. Register marketplace
-claude marketplace add oh-my-study-with-me https://github.com/lsh1215/oh-my-study-with-me.git
+## How to Invoke
 
-# 2. Install plugin
-claude plugin install oh-my-study-with-me@oh-my-study-with-me
-```
+Three ways to call any skill:
 
-## Usage
-
-### Slash Commands
-
+**Slash commands** (explicit)
 ```
 /oh-my-study-with-me:study kafka
-/oh-my-study-with-me:study-vault kafka Ch3-Ch5
 /oh-my-study-with-me:blog kafka producer
-/oh-my-study-with-me:lab kafka
-/oh-my-study-with-me:setup-quiz
 ```
 
-### Colon Patterns
-
+**Colon patterns** (shorthand)
 ```
 study : kafka
-study-vault : kafka
 blog : kafka producer
-lab : kafka
+lab : redis
 ```
 
-### Natural Language
-
+**Natural language** (just talk)
 ```
 Let's study the Kafka book
-Write a blog post
-Spin up a Redis lab environment
+Write a blog post about producers
+Spin up a Redis lab
 Set up a Slack quiz system
 Continue from where we left off
 ```
 
+Works in both English and Korean.
+
+---
+
 ## Workflow
 
 ```
-study-vault (pre-study notes) ─── Grasp overall book structure
+study-vault ─── Grasp the full book structure first
   └── Dashboard + Quick-Reference + Concept-Compare + Practice
-
                     ↓
-study (learning session) ─── Per-concept metacognition tracking (🟦🟩🟨🟥⬜)
-  ├── Phase 3 validation → Auto-save to quiz_bank.json
-  │                       ↓
-  │   setup-quiz ─── GitHub Actions sends daily Slack quizzes
+study ─── Deep dive into each chapter (🟦🟩🟨🟥⬜ metacognition)
+  ├── Validation → quiz_bank.json
+  │                    ↓
+  │   setup-quiz ─── Daily Slack quizzes via GitHub Actions
   │
-  ├── "I want to try it hands-on" → lab environment setup
+  ├── "I want to try it" → lab
   │                          ↓
-  │   lab ─── Docker Compose → Monitoring → Observe → Analyze
+  │   lab ─── Docker Compose → Monitor → Observe → Analyze
   │
-  └── Phase 4 study memo → Save to study-notes/
-                                ↓
+  └── Study memo → study-notes/
+                         ↓
       blog ─── Skeleton → Draft → Kill Your Darlings → Notion
 ```
 
-## Data Structure
+---
 
-The following directories are created in the project where the plugin is installed:
+## Metacognition Tracking
 
-```
-your-project/
-├── books/                    # Book PDFs (by category)
-├── study-notes/              # Per-chapter study memos
-├── study-vault/              # Structured pre-study notes
-├── quizzes/quiz_bank.json    # Spaced repetition quiz bank
-├── tracking/                 # Per-concept metacognition dashboard
-└── labs/                     # Docker lab environments
-```
+Every concept you study is tracked individually:
 
-## Plugin Structure
+| Badge | Meaning | Accuracy |
+|-------|---------|----------|
+| 🟦 | Mastered | 90%+ (3+ attempts) |
+| 🟩 | Good | 70-89% |
+| 🟨 | Average | 40-69% |
+| 🟥 | Weak | 0-39% |
+| ⬜ | Not tested | — |
 
-```
-oh-my-study-with-me/
-├── .claude-plugin/
-│   ├── plugin.json           # Plugin manifest
-│   └── marketplace.json      # Marketplace manifest
-├── skills/
-│   ├── index.md              # Skill index + integration relationships
-│   ├── study/SKILL.md
-│   ├── study-vault/SKILL.md
-│   ├── setup-quiz/SKILL.md
-│   ├── blog/SKILL.md
-│   └── lab/SKILL.md
-├── hooks/
-│   └── hooks.json            # skill-router hook config
-├── scripts/
-│   └── skill-router.mjs      # Multi-pattern matching router
-└── docs/
-    └── ko/                   # Korean reference docs
-```
+Weak concepts are automatically prioritized in your next session.
 
-## Pattern Matching
+---
 
-The skill-router supports OMC (oh-my-claudecode) style multi-pattern matching:
+## Requirements
 
-1. **Colon patterns** (highest priority): `study : kafka`
-2. **Keyword patterns**: `blog`, `lab environment`, `quiz system`, etc.
-3. **Phrase patterns**: `Let's study the Kafka book`, `spin up a Redis lab`, etc.
+- [Claude Code](https://docs.anthropic.com/claude-code) CLI
+- Book PDFs in your project's `books/` directory
+- Docker (for `lab` skill only)
+- Slack + GitHub Actions (for `setup-quiz` skill only)
 
-False positive prevention:
-- Code blocks (```, ~~~, `` ` ``) are stripped before matching
-- Word boundaries (`\b`) are used
-- Priority-based matching (study-vault > setup-quiz > blog > lab > study)
+---
 
 ## License
 
-[MIT](LICENSE)
+MIT — see [LICENSE](LICENSE)
+
+---
+
+<div align="center">
+
+**Read deeply. Validate honestly. Write clearly.**
+
+</div>
