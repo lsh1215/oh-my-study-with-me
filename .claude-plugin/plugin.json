@@ -1,0 +1,19 @@
+{
+  "name": "oh-my-study-with-me",
+  "version": "0.1.0",
+  "description": "First Principles 기반 기술 학습 플러그인. 책 PDF 학습, 구조화된 노트 생성, Slack 일일 퀴즈, 기술 블로그 글쓰기, Docker 실습 환경을 하나의 워크플로우로 통합합니다.",
+  "author": {
+    "name": "leesanghun"
+  },
+  "repository": "https://github.com/leesanghun/oh-my-study-with-me",
+  "license": "MIT",
+  "keywords": [
+    "study",
+    "learning",
+    "first-principles",
+    "spaced-repetition",
+    "blog",
+    "lab",
+    "quiz"
+  ]
+}
