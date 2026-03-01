@@ -32,19 +32,28 @@ const SKILL_DEFINITIONS = {
   "study-vault": {
     file: "study-vault/SKILL.md",
     desc: "Study Vault (pre-study note generation)",
-    // Keyword patterns: \b ensures word boundaries
+    // Keyword patterns: \b ensures word boundaries (EN + KO)
     keywords: [
       /\bstudy[\s-]?vault\b/i,
       /\bpre[\s-]?study[\s]?notes?\b/i,
       /\bnote[\s]?generation\b/i,
       /\bvault[\s]?generat/i,
       /\bcreate[\s]?vault\b/i,
+      // Korean
+      /\b스터디[\s-]?볼트\b/,
+      /\b사전[\s]?노트\b/,
+      /\b노트[\s]?생성\b/,
+      /\bvault[\s]?생성\b/i,
+      /\b볼트[\s]?만들/,
     ],
-    // Phrase patterns: multi-word combinations
+    // Phrase patterns: multi-word combinations (EN + KO)
     phrases: [
       /book\s*.{0,10}(overview|structure|outline)\s*.{0,10}(note|generat|creat)/i,
       /vault\s*.{0,10}(creat|generat|start|build)/i,
       /structured\s*.{0,10}notes?\b/i,
+      // Korean
+      /책\s*.{0,10}(전체|구조|조감|개요)\s*.{0,10}(파악|정리|노트|생성)/,
+      /vault\s*.{0,10}(만들|생성|시작)/i,
     ],
   },
 
@@ -55,6 +64,10 @@ const SKILL_DEFINITIONS = {
       /\bdeep[\s-]?study\b/i,
       /\bfirst[\s-]?principles?\b/i,
       /\bstudy[\s]?session\b/i,
+      // Korean
+      /\b학습[\s]?세션\b/,
+      /\b딥[\s]?스터디\b/,
+      /\b퍼스트[\s]?프린시플/,
     ],
     phrases: [
       /(?:book|pdf|chapter)\s*.{0,15}(?:study|learn|read|start|continu)/i,
@@ -62,6 +75,11 @@ const SKILL_DEFINITIONS = {
       /(?:deep|thorough|proper)(?:ly)?\s*.{0,10}(?:study|learn|dig|understand)/i,
       /(?:previous|last)\s*.{0,10}(?:study|learn|session)\s*.{0,10}(?:continu|resume|pick up)/i,
       /let'?s\s+(?:study|learn)\b/i,
+      // Korean
+      /(?:책|pdf|챕터|chapter)\s*.{0,15}(?:공부|학습|읽|시작|이어)/i,
+      /(?:공부|학습)\s*.{0,10}(?:하자|시작|하고|할래|해줘|하겠)/,
+      /(?:깊이|깊게|제대로)\s*.{0,10}(?:공부|학습|파고|파자|파보)/,
+      /(?:이전|지난)\s*.{0,10}(?:학습|공부)\s*.{0,10}(?:이어|계속|continue)/i,
     ],
   },
 
@@ -75,12 +93,22 @@ const SKILL_DEFINITIONS = {
       /\breview[\s]?system\b/i,
       /\bspaced[\s-]?repetition\b/i,
       /\bleitner\b/i,
+      // Korean
+      /\b퀴즈[\s]?시스템\b/,
+      /\b퀴즈[\s]?설정\b/,
+      /\b퀴즈[\s]?셋업\b/,
+      /\b복습[\s]?시스템\b/,
     ],
     phrases: [
       /(?:slack)\s*.{0,15}(?:quiz|review|repetition)/i,
       /(?:daily)\s*.{0,10}(?:quiz|review|repetition)/i,
       /(?:quiz)\s*.{0,15}(?:build|create|setup|set up|configur)/i,
       /(?:spaced|interval)\s*.{0,10}(?:review|repetition|system)/i,
+      // Korean
+      /(?:슬랙|slack)\s*.{0,15}(?:퀴즈|quiz|복습)/i,
+      /(?:일일|매일|daily)\s*.{0,10}(?:퀴즈|quiz|복습)/i,
+      /(?:퀴즈|quiz)\s*.{0,15}(?:구축|만들|설정|셋업|setup)/i,
+      /(?:간격|반복)\s*.{0,10}(?:복습|학습|시스템)/,
     ],
   },
 
@@ -91,11 +119,18 @@ const SKILL_DEFINITIONS = {
       /\bblog\b/i,
       /\btech[\s-]?blog\b/i,
       /\bblog[\s]?post\b/i,
+      // Korean
+      /\b블로그\b/,
+      /\b기술[\s]?글\b/,
     ],
     phrases: [
       /(?:blog|tech\s*post|article)\s*.{0,15}(?:writ|draft|start|creat)/i,
       /(?:writ|draft)\s*.{0,10}(?:blog|post|article)/i,
       /(?:draft|review|proofread)\s*.{0,10}(?:the\s)?(?:post|article|blog)/i,
+      // Korean
+      /(?:블로그|기술\s*글)\s*.{0,15}(?:쓰|작성|시작|써줘|쓰자)/,
+      /(?:글|포스트|아티클)\s*.{0,10}(?:쓰자|써줘|작성|시작)/,
+      /(?:초안|리뷰|검수)\s*.{0,10}(?:해줘|하자|시작|보자)/,
     ],
   },
 
@@ -106,12 +141,20 @@ const SKILL_DEFINITIONS = {
       /\blab\b/i,
       /\blab[\s]?environment\b/i,
       /\bhands[\s-]?on[\s]?env/i,
+      // Korean
+      /\b실습[\s]?환경\b/,
+      /\b랩[\s]?환경\b/,
     ],
     phrases: [
       /(?:docker)\s*.{0,15}(?:lab|environment|setup|spin|start|creat)/i,
       /(?:kafka|elasticsearch|mysql|redis)\s*.{0,15}(?:lab|environment|setup|spin|start|creat)/i,
       /(?:lab|environment)\s*.{0,15}(?:build|creat|setup|start|spin|launch)/i,
       /(?:spin|start|launch|set)\s*.{0,10}(?:up\s)?(?:a\s)?(?:kafka|elasticsearch|mysql|redis)\s*.{0,10}(?:lab|env)/i,
+      // Korean
+      /(?:docker|도커)\s*.{0,15}(?:실습|환경|구축|띄우|올려|만들)/i,
+      /(?:kafka|카프카|es|elasticsearch|mysql|redis|레디스)\s*.{0,15}(?:실습|환경|구축|띄우|올려|셋업)/i,
+      /(?:실습|환경)\s*.{0,15}(?:구축|만들|셋업|시작|띄우|올려)/,
+      /(?:kafka|카프카|es|elasticsearch|mysql|redis|레디스)\s*.{0,10}(?:lab|랩)\b/i,
     ],
   },
 };
