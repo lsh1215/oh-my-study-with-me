@@ -199,19 +199,25 @@ function extractPrompt(input) {
 }
 
 /**
- * Colon pattern matching: "study : kafka", "lab:es"
+ * Colon pattern matching: "study : kafka", "swm study : kafka", "lab:es"
+ * Supports both bare skill names and "swm <skill>" prefix.
  * Returns: { skill, args } or null
  */
 function matchColonPattern(text) {
   for (const skillName of SKILL_PRIORITY) {
     const escapedName = skillName.replace("-", "[-\\s]?");
-    const pattern = new RegExp(
-      `^\\s*${escapedName}\\s*:\\s*(.*)`,
-      "is"
-    );
-    const match = text.match(pattern);
-    if (match) {
-      return { skill: skillName, args: match[1].trim() };
+    // Match: "study : kafka" or "swm study : kafka" or "swm:study kafka"
+    const patterns = [
+      new RegExp(`^\\s*${escapedName}\\s*:\\s*(.*)`, "is"),
+      new RegExp(`^\\s*swm\\s+${escapedName}\\s*:\\s*(.*)`, "is"),
+      new RegExp(`^\\s*swm\\s*:\\s*${escapedName}\\s+(.*)`, "is"),
+      new RegExp(`^\\s*swm\\s*:\\s*${escapedName}\\s*$`, "is"),
+    ];
+    for (const pattern of patterns) {
+      const match = text.match(pattern);
+      if (match) {
+        return { skill: skillName, args: (match[1] || "").trim() };
+      }
     }
   }
   return null;

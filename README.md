@@ -27,7 +27,7 @@
 /plugin install oh-my-study-with-me
 ```
 
-That's it. Start studying.
+That's it. Start studying. The short alias is **`swm`**.
 
 ---
 
@@ -60,7 +60,14 @@ That's it. Start studying.
 
 ## How to Invoke
 
-Three ways to call any skill:
+Four ways to call any skill:
+
+**`swm` prefix** (recommended)
+```
+swm:study kafka
+swm:blog kafka producer
+swm:lab redis
+```
 
 **Slash commands** (explicit)
 ```
@@ -68,7 +75,7 @@ Three ways to call any skill:
 /oh-my-study-with-me:blog kafka producer
 ```
 
-**Colon patterns** (shorthand)
+**Colon patterns** (bare skill name)
 ```
 study : kafka
 blog : kafka producer
@@ -80,8 +87,6 @@ lab : redis
 Let's study the Kafka book
 Write a blog post about producers
 Spin up a Redis lab
-Set up a Slack quiz system
-Continue from where we left off
 ```
 
 Works in both English and Korean.

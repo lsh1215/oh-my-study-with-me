@@ -1,6 +1,6 @@
 {
   "$schema": "https://anthropic.com/claude-code/marketplace.schema.json",
-  "name": "oh-my-study-with-me",
+  "name": "swm",
   "description": "First Principles-based technical learning plugin - PDF study, structured notes, Slack quizzes, blog writing, Docker labs",
   "owner": {
     "name": "leesanghun"
