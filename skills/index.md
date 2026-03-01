@@ -16,7 +16,7 @@ This plugin provides an integrated workflow for First Principles-based technical
 |---|---|---|
 | [study](study/SKILL.md) | `/oh-my-study-with-me:study` | First Principles learning session (PDF → principles → dialogue → validation) + per-concept metacognition tracking |
 | [study-vault](study-vault/SKILL.md) | `/oh-my-study-with-me:study-vault` | Book PDF → structured study notes (dashboard/quick-reference/concept-compare) |
-| [setup-quiz](setup-quiz/SKILL.md) | `/oh-my-study-with-me:setup-quiz` | Slack daily review quiz system (GitHub Actions + Leitner) |
+| [setup-quiz](setup-quiz/SKILL.md) | `/oh-my-study-with-me:setup-quiz` | ⚠️ *Experimental* — Slack daily review quiz system (GitHub Actions + Leitner) |
 
 ### ✍️ Writing
 | Skill | Invocation | Description |

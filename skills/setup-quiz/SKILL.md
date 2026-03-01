@@ -1,7 +1,9 @@
 ---
-description: Sets up a daily review quiz system integrating GitHub Actions and Slack. Automatically reviews study content using Leitner System-based spaced repetition. Use this skill when the user mentions a quiz system, review automation, or spaced repetition.
+description: "[Experimental] Sets up a daily review quiz system integrating GitHub Actions and Slack. Automatically reviews study content using Leitner System-based spaced repetition. Use this skill when the user mentions a quiz system, review automation, or spaced repetition."
 user-invocable: true
 ---
+
+> **⚠️ Experimental** — This skill is under active development and not yet stable. APIs, quiz schema, and grading logic may change without notice.
 
 # Setup Quiz - Slack Daily Review Quiz System Setup
 

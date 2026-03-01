@@ -52,7 +52,7 @@ That's it. Start studying.
 |-------|-------------|
 | `study` | Deep learning session — PDF reading, First Principles dialogue, type-based validation, metacognition tracking |
 | `study-vault` | Pre-study note generation — dashboard, quick-reference, concept-compare, practice problems |
-| `setup-quiz` | Slack daily quiz system — GitHub Actions + Leitner spaced repetition |
+| `setup-quiz` | ⚠️ *Experimental* — Slack daily quiz system, GitHub Actions + Leitner spaced repetition |
 | `blog` | Technical blog writing — Orwell clarity, Toulmin argumentation, Steel Man rebuttal |
 | `lab` | Docker lab environments — Kafka, ES, MySQL, Redis with Prometheus + Grafana |
 
