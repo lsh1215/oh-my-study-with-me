@@ -1,277 +1,277 @@
 ---
-description: 책 PDF에서 구조화된 학습 노트를 사전 생성합니다. 대시보드, 빠른 참조표, 개념 비교, 연습 문제를 포함한 Study Vault를 만듭니다. 사용자가 vault, 노트 생성, 사전 학습을 언급하면 이 스킬을 사용합니다.
-argument-hint: "[책이름 키워드]" 또는 "[책이름] [챕터범위]"
+description: Pre-generates structured study notes from a book PDF. Creates a Study Vault including a dashboard, quick reference tables, concept comparisons, and practice problems. Use this skill when the user mentions vault, note generation, or pre-study.
+argument-hint: "[book-name keyword]" or "[book-name] [chapter-range]"
 user-invocable: true
 ---
 
-# Study Vault - 사전 노트 생성 스킬
+# Study Vault - Pre-Note Generation Skill
 
-## 인자 파싱
-- 인자 없음 → 책 선택부터 시작
-- `[책이름 키워드]` → 해당 책 바로 시작
-- `[책이름] [챕터범위]` → 특정 챕터만 (예: `카프카 Ch3-Ch5`)
+## Argument Parsing
+- No argument → start from book selection
+- `[book-name keyword]` → start immediately with that book
+- `[book-name] [chapter-range]` → specific chapters only (e.g., `kafka Ch3-Ch5`)
 
-인자: $ARGUMENTS
+Argument: $ARGUMENTS
 
 ---
 
-## /oh-my-study-with-me:study와의 차이
+## Difference from /oh-my-study-with-me:study
 
 | | study | study-vault |
 |---|---|---|
-| **방식** | 읽으면서 대화하며 이해 완성 | 먼저 전체를 분석하고 노트를 생성 |
-| **속도** | 느림 (인터랙티브) | 빠름 (자동 생성) |
-| **깊이** | 깊음 (Why? 대화) | 넓음 (전체 구조 파악) |
-| **적합한 상황** | 핵심 챕터 깊이 파기 | 새 책 전체 조감, 개념 간 관계 구조화, 복습용 노트 |
+| **Approach** | Read and converse interactively to build understanding | Analyze the whole first, then generate notes |
+| **Speed** | Slow (interactive) | Fast (auto-generated) |
+| **Depth** | Deep (Why? conversation) | Broad (grasp overall structure) |
+| **Best for** | Deep diving into key chapters | Bird's-eye view of a new book, structuring concept relationships, review notes |
 
-두 스킬은 보완적이다:
-1. `/oh-my-study-with-me:study-vault`로 책 전체 구조를 먼저 파악한다.
-2. `/oh-my-study-with-me:study`로 핵심 챕터를 깊이 파고든다.
-3. vault의 연습문제로 복습한다.
-
----
-
-## 설계 원칙
-
-1. **출처 검증**: 파일명이 아니라 실제 내용을 읽고 확인한 후에만 노트를 작성한다.
-2. **능동적 회상**: 모든 답은 접힌 상태(details/summary)로 작성한다. 펼치기 전에 생각하게 한다.
-3. **개념 간 연결**: 모든 노트는 관련 노트를 상호 참조한다.
-4. **자체 검수**: 마지막에 품질 체크리스트를 돌린다.
+The two skills are complementary:
+1. Use `/oh-my-study-with-me:study-vault` to get an overview of the book's entire structure first.
+2. Use `/oh-my-study-with-me:study` to deep dive into key chapters.
+3. Review using the vault's practice problems.
 
 ---
 
-## Phase 1: 소스 탐색 및 구조 파악
+## Design Principles
 
-1. 사용자가 선택한 책의 PDF를 읽는다.
-   - 100MB 초과 시 `pdftotext` CLI 사용 (페이지 범위 지정)
-   - 목차 페이지(보통 앞 5~15페이지)를 먼저 추출한다.
-2. 목차에서 **토픽 계층구조**를 만든다:
+1. **Source verification**: Only write notes after actually reading and confirming the content, not just the filename.
+2. **Active recall**: Write all answers in collapsed state (details/summary). Make the learner think before expanding.
+3. **Concept connections**: Every note cross-references related notes.
+4. **Self-review**: Run a quality checklist at the end.
+
+---
+
+## Phase 1: Source Exploration and Structure Analysis
+
+1. Read the PDF of the book the user selected.
+   - If over 100MB, use `pdftotext` CLI (specify page range)
+   - Extract the table of contents pages first (usually the first 5–15 pages).
+2. Build a **topic hierarchy** from the table of contents:
    ```
-   Part 1: 기초
-   ├── Ch1: 소개 → [토픽: 기본 개념, 아키텍처]
-   ├── Ch2: 설치 → [토픽: 환경 구축] (skip: 실습으로 대체)
-   └── Ch3: 기본 동작 → [토픽: CRUD, 내부 구조]
-   Part 2: 심화
+   Part 1: Basics
+   ├── Ch1: Introduction → [Topics: core concepts, architecture]
+   ├── Ch2: Installation → [Topics: environment setup] (skip: replaced by lab)
+   └── Ch3: Basic operations → [Topics: CRUD, internal structure]
+   Part 2: Advanced
    └── ...
    ```
-3. 사용자에게 토픽 계층구조를 보여주고, 범위를 확인한다.
-   - "전체 생성" vs "특정 파트만" 선택 가능
-   - 설치/환경구축 같은 챕터는 `/oh-my-study-with-me:lab` 스킬로 대체 가능하므로 스킵 제안
+3. Show the topic hierarchy to the user and confirm the scope.
+   - User can choose "generate all" vs "specific parts only"
+   - Suggest skipping chapters like installation/environment setup, as they can be replaced with the `/oh-my-study-with-me:lab` skill
 
 ---
 
-## Phase 2: 콘텐츠 분석 및 태그 설계
+## Phase 2: Content Analysis and Tag Design
 
-1. 선택된 범위의 각 챕터를 20페이지씩 읽는다.
-2. 각 챕터에서 추출할 것:
-   - **핵심 개념** 목록 (이름 + 한줄 정의)
-   - **개념 간 의존관계** (A를 알아야 B를 이해할 수 있다)
-   - **실무 연결점** (이 개념이 실제로 어디에 쓰이는가)
-3. **태그 표준**을 설계한다:
-   - 형식: 영어 kebab-case
-   - 예: `#producer`, `#consumer-group`, `#replication`, `#partition`
-   - 사용자에게 태그 목록을 보여주고 승인받는다.
+1. Read each chapter in the selected scope, 20 pages at a time.
+2. Extract from each chapter:
+   - **Key concepts** list (name + one-line definition)
+   - **Concept dependency relationships** (A must be understood before B)
+   - **Real-world connections** (where this concept is actually used)
+3. Design **tag standards**:
+   - Format: English kebab-case
+   - Examples: `#producer`, `#consumer-group`, `#replication`, `#partition`
+   - Show the tag list to the user and get approval.
 
 ---
 
-## Phase 3: Vault 생성
+## Phase 3: Vault Creation
 
-### 디렉토리 구조
+### Directory Structure
 ```
-study-vault/{카테고리}/{책이름}/
+study-vault/{category}/{book-name}/
 ├── 00-dashboard.md
 ├── 00-quick-reference.md
 ├── 00-concept-compare.md
-├── 01-[토픽명]/
+├── 01-[topic-name]/
 │   ├── concepts.md
 │   └── practice.md
-├── 02-[토픽명]/
+├── 02-[topic-name]/
 │   ├── concepts.md
 │   └── practice.md
 └── ...
 ```
 
-### 3-1. 대시보드 (00-dashboard.md)
+### 3-1. Dashboard (00-dashboard.md)
 
 ```markdown
-# [책 이름] Study Vault
+# [Book Name] Study Vault
 
-## 학습 지도
+## Learning Map
 
-[토픽 간 의존관계를 ASCII로 시각화]
+[Visualize topic dependency relationships in ASCII]
 
-## 토픽 목록
+## Topic List
 
-| # | 토픽 | 핵심 개념 수 | 연습 문제 수 | 난이도 | 태그 |
-|---|------|-------------|------------|--------|------|
-| 01 | [토픽명] | N개 | N개 | ★☆☆ | #tag1, #tag2 |
-| 02 | [토픽명] | N개 | N개 | ★★☆ | #tag3, #tag4 |
+| # | Topic | # of Key Concepts | # of Practice Problems | Difficulty | Tags |
+|---|-------|-------------------|------------------------|------------|------|
+| 01 | [topic name] | N | N | ★☆☆ | #tag1, #tag2 |
+| 02 | [topic name] | N | N | ★★☆ | #tag3, #tag4 |
 
-## 약점 영역
-_(학습 후 tracking/ 메타인지 추적 파일에서 자동 반영)_
+## Weak Areas
+_(Automatically reflected from the tracking/ metacognition file after studying)_
 
-## 참고
-- 출처: [책 이름] ([저자], [출판사])
-- 생성일: YYYY-MM-DD
-- 관련 스킬: `/oh-my-study-with-me:study`로 깊이 파기, `/oh-my-study-with-me:lab`으로 실습
+## References
+- Source: [Book Name] ([Author], [Publisher])
+- Created: YYYY-MM-DD
+- Related skills: Deep dive with `/oh-my-study-with-me:study`, hands-on practice with `/oh-my-study-with-me:lab`
 ```
 
-### 3-2. 빠른 참조표 (00-quick-reference.md)
+### 3-2. Quick Reference (00-quick-reference.md)
 
 ```markdown
-# 빠른 참조표
+# Quick Reference
 
-## 핵심 용어
-| 용어 | 정의 | 관련 토픽 |
-|------|------|----------|
+## Key Terms
+| Term | Definition | Related Topic |
+|------|------------|---------------|
 
-## 주요 API / 명령어 / 설정값
-| 항목 | 설명 | 기본값 | 주의사항 |
-|------|------|--------|---------|
+## Key APIs / Commands / Configuration Values
+| Item | Description | Default | Notes |
+|------|-------------|---------|-------|
 
-## 자주 쓰는 패턴
-[코드 스니펫, 설정 예시 등]
+## Common Patterns
+[Code snippets, configuration examples, etc.]
 ```
 
-### 3-3. 개념 비교 (00-concept-compare.md)
+### 3-3. Concept Comparison (00-concept-compare.md)
 
 ```markdown
-# 혼동하기 쉬운 개념 비교
+# Comparison of Easily Confused Concepts
 
-## [개념A] vs [개념B]
+## [Concept A] vs [Concept B]
 
-### 구조적 차이
-| 구분 | 개념A | 개념B |
-|------|-------|-------|
-| 풀려는 문제 | ... | ... |
-| 동작 원리 | ... | ... |
-| 사용 시점 | ... | ... |
-| 트레이드오프 | ... | ... |
+### Structural Differences
+| Dimension | Concept A | Concept B |
+|-----------|-----------|-----------|
+| Problem it solves | ... | ... |
+| How it works | ... | ... |
+| When to use | ... | ... |
+| Trade-offs | ... | ... |
 
-### 왜 헷갈리는가
-[표면적으로 비슷해 보이는 이유를 구조적으로 설명]
+### Why They Get Confused
+[Structural explanation of why they appear similar on the surface]
 
-### 핵심 구분 기준
-[한 줄로 구분할 수 있는 본질적 차이점]
+### Key Distinguishing Criterion
+[The essential difference that distinguishes them in one line]
 
-### 관련 개념
-- [개념C](../03-토픽/concepts.md#개념-c)는 개념A의 상위 추상화
-- [개념D](../04-토픽/concepts.md#개념-d)는 개념B와 함께 사용
+### Related Concepts
+- [Concept C](../03-topic/concepts.md#concept-c) is a higher-level abstraction of Concept A
+- [Concept D](../04-topic/concepts.md#concept-d) is used together with Concept B
 ```
 
-### 3-4. 개념 노트 (concepts.md)
+### 3-4. Concept Notes (concepts.md)
 
-각 토픽 폴더의 concepts.md:
+concepts.md in each topic folder:
 
 ```markdown
-# [토픽명]
+# [Topic Name]
 
-> 출처: [책 이름] [챕터명] (p.XX-XX)
-> 태그: #tag1 #tag2
+> Source: [Book Name] [Chapter Name] (p.XX-XX)
+> Tags: #tag1 #tag2
 
-## 이 토픽의 근본 문제
-[이 토픽이 풀려는 핵심 문제 한 줄]
+## The Core Problem This Topic Solves
+[One line describing the core problem this topic addresses]
 
-## 전체 구조
-[이 토픽의 개념들이 어떻게 맞물리는지 ASCII 다이어그램]
+## Overall Structure
+[ASCII diagram of how the concepts in this topic fit together]
 
-## 핵심 개념
+## Key Concepts
 
-### [개념 1]
+### [Concept 1]
 
-**정의**: ...
+**Definition**: ...
 
-**왜 필요한가**: [이 개념이 없으면 어떤 문제가 생기는지. 존재 이유를 구조적으로 설명]
+**Why it's needed**: [What problem arises without this concept. Explain its reason for existence structurally]
 
-**동작 원리**:
-[ASCII 다이어그램이 도움이 되면 포함]
+**How it works**:
+[Include an ASCII diagram if helpful]
 
-**설계 트레이드오프**: [이 방식을 선택했을 때 얻는 것과 포기하는 것]
+**Design trade-offs**: [What is gained and what is sacrificed by choosing this approach]
 
-**관련 개념**: [개념2](../02-토픽명/concepts.md#개념-2), [개념3](#개념-3)
+**Related concepts**: [Concept 2](../02-topic-name/concepts.md#concept-2), [Concept 3](#concept-3)
 ```
 
-규칙:
-- 각 개념은 **정의 → 왜 필요한가 → 동작 원리 → 설계 트레이드오프 → 관련 개념** 순서
-- "왜 필요한가"는 "없으면 뭐가 문제인가"로 쓴다. 기능 나열이 아니라 존재 이유를 설명
-- "설계 트레이드오프"는 해당 개념이 선택한 방향과 그로 인한 비용을 명시. 없으면 생략 가능
-- 토픽 시작에 "전체 구조" 다이어그램으로 개념 간 관계를 시각화
-- 관련 개념은 같은 파일 내 앵커 또는 다른 토픽 파일로 상호 링크
+Rules:
+- Each concept follows the order: **Definition → Why it's needed → How it works → Design trade-offs → Related concepts**
+- "Why it's needed" is written as "what goes wrong without it." Explain its reason for existence, not a feature list
+- "Design trade-offs" specifies the direction the concept chose and the cost that comes with it. Can be omitted if not applicable
+- Visualize concept relationships with an "Overall Structure" diagram at the start of each topic
+- Related concepts are cross-linked with in-file anchors or links to other topic files
 
-### 3-5. 연습 문제 (practice.md)
+### 3-5. Practice Problems (practice.md)
 
-각 토픽 폴더의 practice.md:
+practice.md in each topic folder:
 
 ```markdown
-# [토픽명] 연습 문제
+# [Topic Name] Practice Problems
 
-> 난이도: ★ 기초 / ★★ 응용 / ★★★ 심화
+> Difficulty: ★ Basic / ★★ Applied / ★★★ Advanced
 
-## 문제 1 ★
-[질문]
+## Problem 1 ★
+[Question]
 
 <details>
-<summary>정답 보기</summary>
+<summary>Show Answer</summary>
 
-[정답 + 왜 그런지 설명]
+[Answer + explanation of why]
 
 </details>
 ```
 
-규칙:
-- 토픽당 최소 8문제
-- 난이도 분포: 기초 40%, 응용 40%, 심화 20%
-- 유형 분포: 회상(recall) 60% 이상, 적용(application) 20% 이상, 분석(analysis) 10% 이상
-- **제로 힌트 원칙**: 문제 텍스트에 정답 힌트가 새어나가면 안 된다
-- 모든 답은 `<details><summary>` 태그로 접어서 능동적 회상을 유도
+Rules:
+- Minimum 8 problems per topic
+- Difficulty distribution: Basic 40%, Applied 40%, Advanced 20%
+- Type distribution: Recall 60%+, Application 20%+, Analysis 10%+
+- **Zero-hint principle**: No answer hints must leak into the problem text
+- All answers must be collapsed with `<details><summary>` tags to encourage active recall
 
 ---
 
-## Phase 4: 상호 링크
+## Phase 4: Cross-Linking
 
-1. 모든 concepts.md 파일의 "관련 개념"을 양방향으로 연결한다.
-2. dashboard의 토픽 목록에서 각 토픽 폴더로 링크한다.
-3. concept-compare에서 관련 concepts.md로 링크한다.
-4. 링크 형식: 상대 경로 마크다운 링크 `[개념명](../01-토픽/concepts.md#앵커)`
-
----
-
-## Phase 5: 자체 검수
-
-생성 완료 후 아래 체크리스트를 실행한다. 하나라도 실패하면 해당 항목을 수정한다.
-
-### 커버리지 검수
-- [ ] 선택된 모든 챕터의 핵심 개념이 concepts.md에 포함되어 있는가?
-- [ ] 각 토픽에 최소 8개 연습 문제가 있는가?
-- [ ] quick-reference에 주요 API/명령어/설정값이 빠짐없이 있는가?
-
-### 품질 검수
-- [ ] 모든 개념에 "왜 필요한가"가 있는가? (단순 정의만 있으면 실패)
-- [ ] 연습 문제에 제로 힌트 원칙이 지켜졌는가?
-- [ ] 모든 답이 `<details>` 태그로 접혀 있는가?
-
-### 연결 검수
-- [ ] 모든 상호 참조 링크가 실제 파일/앵커를 가리키는가?
-- [ ] dashboard에서 모든 토픽으로 링크가 되어 있는가?
-
-### 출처 검수
-- [ ] 모든 concepts.md에 출처(책 이름, 챕터, 페이지)가 명시되어 있는가?
-- [ ] PDF에서 실제로 확인한 내용만 작성했는가? (추측 금지)
+1. Connect "Related concepts" in all concepts.md files bidirectionally.
+2. Link from the topic list in the dashboard to each topic folder.
+3. Link from concept-compare to related concepts.md files.
+4. Link format: relative path markdown link `[concept name](../01-topic/concepts.md#anchor)`
 
 ---
 
-## /oh-my-study-with-me:study 연동
+## Phase 5: Self-Review
 
-vault 생성 후 `/oh-my-study-with-me:study`로 깊이 학습할 때:
-1. Phase 1에서 vault의 concepts.md를 참조하여 원리 추출을 보강한다.
-2. Phase 3 검증 결과는 `tracking/` 메타인지 추적 파일에 동일하게 기록된다.
-3. vault의 연습 문제 중 틀린 것은 quiz_bank.json에 자동 추가할 수 있다.
+After generation is complete, run the checklist below. If any item fails, fix it.
+
+### Coverage Review
+- [ ] Are the key concepts of all selected chapters included in concepts.md?
+- [ ] Does each topic have at least 8 practice problems?
+- [ ] Are all major APIs/commands/configuration values included in quick-reference without omission?
+
+### Quality Review
+- [ ] Does every concept have a "Why it's needed" section? (Fails if only a plain definition is present)
+- [ ] Is the zero-hint principle upheld in all practice problems?
+- [ ] Are all answers collapsed with `<details>` tags?
+
+### Link Review
+- [ ] Do all cross-reference links point to actual files/anchors?
+- [ ] Are all topics linked from the dashboard?
+
+### Source Review
+- [ ] Is the source (book name, chapter, page) stated in all concepts.md files?
+- [ ] Are only contents actually confirmed from the PDF written? (No guessing)
 
 ---
 
-## 주의사항
+## Integration with /oh-my-study-with-me:study
 
-- 책 내용을 그대로 베끼지 않는다. 핵심을 추출하여 학습자 관점에서 재구성한다.
-- PDF 읽기는 20페이지씩 분할한다. 100MB 초과 PDF는 pdftotext를 사용한다.
-- vault 생성은 시간이 걸린다. 진행 상황을 단계별로 사용자에게 보고한다.
-- 이미 vault가 존재하면 덮어쓸지 추가할지 사용자에게 확인한다.
+When deep studying with `/oh-my-study-with-me:study` after vault creation:
+1. In Phase 1, reference the vault's concepts.md to supplement principle extraction.
+2. Phase 3 verification results are recorded in the same `tracking/` metacognition file.
+3. Practice problems from the vault that were answered incorrectly can be automatically added to quiz_bank.json.
+
+---
+
+## Notes
+
+- Do not copy book content verbatim. Extract the essence and restructure from the learner's perspective.
+- Read PDFs in 20-page chunks. Use pdftotext for PDFs over 100MB.
+- Vault generation takes time. Report progress to the user step by step.
+- If a vault already exists, confirm with the user whether to overwrite or append.

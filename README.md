@@ -1,126 +1,129 @@
 # oh-my-study-with-me
 
-First Principles 기반 기술 학습 플러그인 for Claude Code.
+A First Principles-based technical learning plugin for Claude Code.
 
-책 PDF 학습, 구조화된 노트 생성, Slack 일일 퀴즈, 기술 블로그 글쓰기, Docker 실습 환경을 하나의 워크플로우로 통합합니다.
+Integrates book PDF study, structured note generation, Slack daily quizzes, technical blog writing, and Docker lab environments into a single workflow.
 
-## 스킬 목록
+## Skills
 
-| 스킬 | 호출 | 설명 |
-|------|------|------|
-| **study** | `/oh-my-study-with-me:study` | First Principles 기반 학습 세션 (PDF → 원리 추출 → 소크라테스 대화 → 유형별 검증) |
-| **study-vault** | `/oh-my-study-with-me:study-vault` | 책 PDF에서 구조화된 학습 노트 사전 생성 (대시보드, 빠른참조, 개념비교, 연습문제) |
-| **setup-quiz** | `/oh-my-study-with-me:setup-quiz` | GitHub Actions + Slack 일일 복습 퀴즈 시스템 구축 (Leitner 간격 반복) |
-| **blog** | `/oh-my-study-with-me:blog` | 기술 블로그 글쓰기 (Orwell 문체 + Toulmin 논증 + Steel Man 반박) |
-| **lab** | `/oh-my-study-with-me:lab` | Docker Compose 기반 실습 환경 (Kafka, ES, MySQL, Redis + 모니터링) |
+| Skill | Invocation | Description |
+|-------|------------|-------------|
+| **study** | `/oh-my-study-with-me:study` | First Principles learning session (PDF → principle extraction → Socratic dialogue → type-based validation) |
+| **study-vault** | `/oh-my-study-with-me:study-vault` | Generate structured study notes from book PDFs (dashboard, quick-reference, concept-compare, practice) |
+| **setup-quiz** | `/oh-my-study-with-me:setup-quiz` | Build a GitHub Actions + Slack daily review quiz system (Leitner spaced repetition) |
+| **blog** | `/oh-my-study-with-me:blog` | Technical blog writing (Orwell style + Toulmin argumentation + Steel Man rebuttal) |
+| **lab** | `/oh-my-study-with-me:lab` | Docker Compose lab environments (Kafka, ES, MySQL, Redis + monitoring) |
 
-## 설치
+## Installation
 
 ```bash
-# 1. 마켓플레이스 등록
+# 1. Register marketplace
 claude marketplace add oh-my-study-with-me https://github.com/lsh1215/oh-my-study-with-me.git
 
-# 2. 플러그인 설치
+# 2. Install plugin
 claude plugin install oh-my-study-with-me@oh-my-study-with-me
 ```
 
-## 사용법
+## Usage
 
-### 슬래시 커맨드로 호출
+### Slash Commands
 
 ```
-/oh-my-study-with-me:study 카프카
-/oh-my-study-with-me:study-vault 카프카 Ch3-Ch5
-/oh-my-study-with-me:blog 카프카 프로듀서
+/oh-my-study-with-me:study kafka
+/oh-my-study-with-me:study-vault kafka Ch3-Ch5
+/oh-my-study-with-me:blog kafka producer
 /oh-my-study-with-me:lab kafka
 /oh-my-study-with-me:setup-quiz
 ```
 
-### 콜론 패턴으로 호출
+### Colon Patterns
 
 ```
-study : 카프카
-study-vault : 카프카
-blog : 카프카 프로듀서
+study : kafka
+study-vault : kafka
+blog : kafka producer
 lab : kafka
 ```
 
-### 자연어로 호출
+### Natural Language
 
 ```
-카프카 책 공부하자
-블로그 써줘
-redis 실습 환경 띄워줘
-슬랙 퀴즈 시스템 만들자
-이전 학습 이어서 하자
+Let's study the Kafka book
+Write a blog post
+Spin up a Redis lab environment
+Set up a Slack quiz system
+Continue from where we left off
 ```
 
-## 워크플로우
+## Workflow
 
 ```
-study-vault (사전 노트) ─── 책 전체 구조 파악
-  └── 대시보드 + 빠른참조 + 개념비교 + 연습문제
+study-vault (pre-study notes) ─── Grasp overall book structure
+  └── Dashboard + Quick-Reference + Concept-Compare + Practice
+
                     ↓
-study (학습 세션) ─── 개념별 메타인지 추적 (🟦🟩🟨🟥⬜)
-  ├── Phase 3 검증 → quiz_bank.json 자동 저장
+study (learning session) ─── Per-concept metacognition tracking (🟦🟩🟨🟥⬜)
+  ├── Phase 3 validation → Auto-save to quiz_bank.json
   │                       ↓
-  │   setup-quiz ─── GitHub Actions 매일 Slack 퀴즈 발송
+  │   setup-quiz ─── GitHub Actions sends daily Slack quizzes
   │
-  ├── "직접 해보고 싶다" → lab 실습 환경 구축
+  ├── "I want to try it hands-on" → lab environment setup
   │                          ↓
-  │   lab ─── Docker Compose → 모니터링 → 관찰 → 분석
+  │   lab ─── Docker Compose → Monitoring → Observe → Analyze
   │
-  └── Phase 4 학습 메모 → study-notes/ 저장
+  └── Phase 4 study memo → Save to study-notes/
                                 ↓
-      blog ─── 뼈대 → 초안 → Kill Your Darlings → Notion
+      blog ─── Skeleton → Draft → Kill Your Darlings → Notion
 ```
 
-## 데이터 구조
+## Data Structure
 
-플러그인이 설치된 프로젝트에 아래 디렉토리가 생성됩니다:
+The following directories are created in the project where the plugin is installed:
 
 ```
 your-project/
-├── books/                    # 책 PDF (카테고리별)
-├── study-notes/              # 챕터별 학습 메모
-├── study-vault/              # 구조화된 사전 노트
-├── quizzes/quiz_bank.json    # 간격 반복 퀴즈 뱅크
-├── tracking/                 # 개념별 메타인지 대시보드
-└── labs/                     # Docker 실습 환경
+├── books/                    # Book PDFs (by category)
+├── study-notes/              # Per-chapter study memos
+├── study-vault/              # Structured pre-study notes
+├── quizzes/quiz_bank.json    # Spaced repetition quiz bank
+├── tracking/                 # Per-concept metacognition dashboard
+└── labs/                     # Docker lab environments
 ```
 
-## 플러그인 구조
+## Plugin Structure
 
 ```
 oh-my-study-with-me/
 ├── .claude-plugin/
-│   ├── plugin.json           # 플러그인 매니페스트
-│   └── marketplace.json      # 마켓플레이스 매니페스트
+│   ├── plugin.json           # Plugin manifest
+│   └── marketplace.json      # Marketplace manifest
 ├── skills/
-│   ├── index.md              # 스킬 인덱스 + 연동 관계
+│   ├── index.md              # Skill index + integration relationships
 │   ├── study/SKILL.md
 │   ├── study-vault/SKILL.md
 │   ├── setup-quiz/SKILL.md
 │   ├── blog/SKILL.md
 │   └── lab/SKILL.md
 ├── hooks/
-│   └── hooks.json            # skill-router 훅 설정
-└── scripts/
-    └── skill-router.mjs      # 다중 패턴 매칭 라우터
+│   └── hooks.json            # skill-router hook config
+├── scripts/
+│   └── skill-router.mjs      # Multi-pattern matching router
+└── docs/
+    └── ko/                   # Korean reference docs
 ```
 
-## 패턴 매칭
+## Pattern Matching
 
-skill-router는 OMC(oh-my-claudecode) 스타일의 다중 패턴 매칭을 지원합니다:
+The skill-router supports OMC (oh-my-claudecode) style multi-pattern matching:
 
-1. **콜론 패턴** (최우선): `study : 카프카`
-2. **키워드 패턴**: `블로그`, `실습 환경`, `퀴즈 시스템` 등
-3. **구문 패턴**: `카프카 책 공부하자`, `redis 실습 환경 띄워줘` 등
+1. **Colon patterns** (highest priority): `study : kafka`
+2. **Keyword patterns**: `blog`, `lab environment`, `quiz system`, etc.
+3. **Phrase patterns**: `Let's study the Kafka book`, `spin up a Redis lab`, etc.
 
-오탐 방지:
-- 코드 블록 (```, ~~~, `` ` ``) 내용 제거 후 매칭
-- 워드 바운더리(`\b`) 사용
-- 우선순위 기반 매칭 (study-vault > setup-quiz > blog > lab > study)
+False positive prevention:
+- Code blocks (```, ~~~, `` ` ``) are stripped before matching
+- Word boundaries (`\b`) are used
+- Priority-based matching (study-vault > setup-quiz > blog > lab > study)
 
 ## License
 

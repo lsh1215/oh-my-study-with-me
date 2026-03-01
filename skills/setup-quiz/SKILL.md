@@ -1,73 +1,72 @@
 ---
-description: GitHub Actions와 Slack을 연동한 일일 복습 퀴즈 시스템을 구축합니다. Leitner System 기반 간격 반복으로 학습 내용을 자동 복습합니다. 사용자가 퀴즈 시스템, 복습 자동화, spaced repetition을 언급하면 이 스킬을 사용합니다.
+description: Sets up a daily review quiz system integrating GitHub Actions and Slack. Automatically reviews study content using Leitner System-based spaced repetition. Use this skill when the user mentions a quiz system, review automation, or spaced repetition.
 user-invocable: true
 ---
 
-# Setup Quiz - 슬랙 일일 복습 퀴즈 시스템 구축
+# Setup Quiz - Slack Daily Review Quiz System Setup
 
-인자: $ARGUMENTS
+Arguments: $ARGUMENTS
 
-## 개요
-학습한 내용을 잊지 않도록, GitHub Actions + Slack으로 매일 저녁 8시에 복습 퀴즈를 보내는 시스템을 구축한다.
-Leitner System 기반 간격 반복(Spaced Repetition)으로 약한 부분은 자주, 체득한 부분은 드물게 출제한다.
+## Overview
+To prevent forgetting what you've studied, this system sends a daily review quiz to Slack every evening at 8 PM via GitHub Actions. Using Leitner System-based spaced repetition, weaker areas are tested more frequently while well-mastered areas appear less often.
 
-## 전체 아키텍처
+## Overall Architecture
 
 ```
-[/oh-my-study-with-me:study 학습 세션]
-  Phase 3 검증 → 퀴즈 자동 생성 → quizzes/quiz_bank.json 저장
-                                          ↓
-[GitHub Actions - 매일 20:00 KST 크론]
-  1) 어제 퀴즈 스레드 읽기 (Slack API conversations.replies)
-  2) 답변에서 키워드 매칭 → 정답/오답 판정
-  3) quiz_bank.json Leitner Box 업데이트
-  4) 오늘 복습 대상 퀴즈 1개 선택
-  5) Slack 전용 채널에 발송
-  6) 변경사항 자동 커밋 + 푸시
+[/oh-my-study-with-me:study session]
+  Phase 3 Verification → Auto-generate quiz → Save to quizzes/quiz_bank.json
+                                                        ↓
+[GitHub Actions - Daily cron at 20:00 KST]
+  1) Read yesterday's quiz thread (Slack API conversations.replies)
+  2) Keyword matching from replies → Grade correct/incorrect
+  3) Update quiz_bank.json Leitner Box
+  4) Select 1 quiz for today's review
+  5) Send to dedicated Slack channel
+  6) Auto-commit + push changes
 ```
 
-## Step 1: 사전 준비 확인
+## Step 1: Pre-requisites Check
 
-사용자에게 아래 항목을 확인한다:
+Confirm the following items with the user:
 
-### 1-1. Slack App 생성
-- https://api.slack.com/apps 에서 "Create New App" → "From scratch"
-- App 이름: `StudyWithMe Quiz Bot` (또는 원하는 이름)
-- Workspace: 사용자의 워크스페이스 선택
+### 1-1. Create Slack App
+- Go to https://api.slack.com/apps → "Create New App" → "From scratch"
+- App name: `StudyWithMe Quiz Bot` (or any name you prefer)
+- Workspace: select the user's workspace
 
-### 1-2. Bot Token Scopes 설정
-OAuth & Permissions 에서 아래 Bot Token Scopes 추가:
-- `chat:write` - 메시지 발송
-- `channels:history` - 채널 메시지 읽기 (스레드 답변 확인용)
-- `channels:join` - 채널 참여
+### 1-2. Configure Bot Token Scopes
+Add the following Bot Token Scopes under OAuth & Permissions:
+- `chat:write` - send messages
+- `channels:history` - read channel messages (for checking thread replies)
+- `channels:join` - join channels
 
-### 1-3. Bot 설치 및 토큰 획득
-- "Install to Workspace" 클릭
-- `xoxb-` 로 시작하는 Bot User OAuth Token 복사
+### 1-3. Install Bot and Get Token
+- Click "Install to Workspace"
+- Copy the Bot User OAuth Token starting with `xoxb-`
 
-### 1-4. Slack 전용 채널 생성
-- `#daily-quiz` 채널 생성 (또는 원하는 이름)
-- 봇을 채널에 초대: `/invite @StudyWithMe Quiz Bot`
-- 채널 ID 확인 (채널 이름 우클릭 → 채널 세부정보 → 하단에 채널 ID)
+### 1-4. Create a Dedicated Slack Channel
+- Create a `#daily-quiz` channel (or any name you prefer)
+- Invite the bot to the channel: `/invite @StudyWithMe Quiz Bot`
+- Find the channel ID (right-click channel name → Channel details → Channel ID at the bottom)
 
-### 1-5. GitHub Secrets 설정
-리포지토리 Settings → Secrets and variables → Actions 에서:
+### 1-5. Configure GitHub Secrets
+In repository Settings → Secrets and variables → Actions:
 - `SLACK_BOT_TOKEN`: Bot User OAuth Token (xoxb-...)
-- `SLACK_CHANNEL_ID`: 전용 채널 ID (C로 시작)
+- `SLACK_CHANNEL_ID`: Dedicated channel ID (starts with C)
 
-사용자에게 위 항목을 모두 완료했는지 확인한 후 다음 단계로 진행한다.
+Confirm that the user has completed all the above items before proceeding to the next step.
 
-## Step 2: 퀴즈 뱅크 구조 생성
+## Step 2: Create Quiz Bank Structure
 
-### 2-1. 디렉토리 생성
+### 2-1. Directory Structure
 ```
 quizzes/
-├── quiz_bank.json          # 퀴즈 데이터
-├── quiz_runner.py          # 퀴즈 선택 + 발송 + 채점 스크립트
-└── README.md               # 사용법
+├── quiz_bank.json          # Quiz data
+├── quiz_runner.py          # Quiz selection + sending + grading script
+└── README.md               # Usage guide
 ```
 
-### 2-2. quiz_bank.json 초기 구조
+### 2-2. quiz_bank.json Initial Structure
 ```json
 {
   "metadata": {
@@ -84,18 +83,18 @@ quizzes/
 }
 ```
 
-### 2-3. 개별 퀴즈 스키마
+### 2-3. Individual Quiz Schema
 ```json
 {
   "id": "kafka-001",
-  "category": "카프카",
-  "book": "카프카 핵심 가이드",
-  "chapter": "Ch3. 프로듀서",
+  "category": "Kafka",
+  "book": "Kafka: The Definitive Guide",
+  "chapter": "Ch3. Producers",
   "type": "concept",
-  "question": "카프카가 JVM 힙 대신 OS 페이지 캐시를 활용하는 이유는?",
-  "hint": "JVM의 어떤 문제를 피하려는 걸까?",
-  "answer": "JVM 힙을 크게 잡으면 GC pause가 길어져 지연이 발생하고, 객체 오버헤드로 메모리 효율이 낮다. OS 페이지 캐시는 GC 없이 커널이 관리하며, 브로커 재시작 시에도 캐시가 유지된다.",
-  "keywords": ["GC", "가비지", "힙", "heap", "페이지 캐시", "page cache", "커널"],
+  "question": "Why does Kafka use OS page cache instead of JVM heap?",
+  "hint": "What JVM problem is it trying to avoid?",
+  "answer": "A large JVM heap causes long GC pauses leading to latency, and object overhead reduces memory efficiency. The OS page cache is managed by the kernel without GC, and the cache persists even after a broker restart.",
+  "keywords": ["GC", "garbage", "heap", "page cache", "kernel"],
   "min_keyword_match": 2,
   "box": 1,
   "next_review": "2026-03-02",
@@ -106,76 +105,76 @@ quizzes/
 }
 ```
 
-## Step 3: quiz_runner.py 작성
+## Step 3: Write quiz_runner.py
 
-Python 스크립트로 아래 기능을 구현한다:
+Implement the following functionality as a Python script:
 
-### 3-1. 어제 퀴즈 채점 (check_previous_quiz)
+### 3-1. Grade Previous Quiz (check_previous_quiz)
 ```python
 """
-1. quiz_bank.json에서 slack_message_ts가 있는 가장 최근 퀴즈를 찾는다.
-2. Slack API conversations.replies로 해당 스레드의 답변을 가져온다.
-3. 봇 메시지가 아닌 사용자 답변에서 keywords 매칭.
-4. min_keyword_match 이상 매칭되면 정답 처리.
-5. 정답 → box += 1 (최대 5), 오답 → box = 1
-6. next_review를 box에 따라 업데이트:
-   - Box 1: +1일, Box 2: +3일, Box 3: +7일, Box 4: +14일, Box 5: +30일
-7. Slack 스레드에 채점 결과 리플라이:
-   - 정답: "✅ 정답! [키워드 매칭 결과] → Box {n}으로 이동"
-   - 오답: "❌ 아쉽! 정답: {answer} → Box 1로 리셋"
-   - 답변 없음: "⏰ 답변이 없었어요. → Box 1로 리셋"
+1. Find the most recent quiz with a slack_message_ts in quiz_bank.json.
+2. Fetch the replies in that thread using Slack API conversations.replies.
+3. Match keywords from user replies (not bot messages).
+4. If min_keyword_match or more keywords match, mark as correct.
+5. Correct → box += 1 (max 5), Incorrect → box = 1
+6. Update next_review based on box:
+   - Box 1: +1 day, Box 2: +3 days, Box 3: +7 days, Box 4: +14 days, Box 5: +30 days
+7. Reply to the Slack thread with grading result:
+   - Correct: "✅ Correct! [keyword match result] → Moving to Box {n}"
+   - Incorrect: "❌ Not quite! Answer: {answer} → Reset to Box 1"
+   - No reply: "⏰ No answer was submitted. → Reset to Box 1"
 """
 ```
 
-### 3-2. 오늘의 퀴즈 선택 (select_quiz)
+### 3-2. Select Today's Quiz (select_quiz)
 ```python
 """
-1. next_review <= 오늘 날짜인 퀴즈들을 필터링.
-2. 우선순위: box가 낮은 것(약한 부분) > 오래 안 물어본 것.
-3. 해당하는 퀴즈가 없으면 "오늘은 복습할 퀴즈가 없습니다!" 메시지만 발송.
-4. 선택된 퀴즈 반환.
+1. Filter quizzes where next_review <= today's date.
+2. Priority: lower box (weaker areas) > least recently asked.
+3. If no quizzes qualify, send only a "No quizzes to review today!" message.
+4. Return the selected quiz.
 """
 ```
 
-### 3-3. 슬랙 발송 (send_quiz)
+### 3-3. Send to Slack (send_quiz)
 ```python
 """
-Slack chat.postMessage API로 전용 채널에 발송.
+Send to the dedicated channel using Slack chat.postMessage API.
 
-메시지 포맷:
+Message format:
 ---
-🧠 *오늘의 복습 퀴즈* #{times_asked + 1}
+🧠 *Today's Review Quiz* #{times_asked + 1}
 📚 {book} - {chapter}
-🏷️ 유형: {type} | 📦 Box {box}
+🏷️ Type: {type} | 📦 Box {box}
 
 > {question}
 
-💡 *힌트*: {hint}
+💡 *Hint*: {hint}
 
-_스레드에 답변을 작성해주세요. 내일 채점됩니다._
+_Please write your answer in the thread. It will be graded tomorrow._
 ---
 
-발송 후:
-1. 응답에서 message.ts를 받아 quiz_bank.json의 slack_message_ts에 저장.
-2. 정답은 다음 날 채점 시 함께 공개.
+After sending:
+1. Retrieve message.ts from the response and save to slack_message_ts in quiz_bank.json.
+2. The answer will be revealed together when grading the next day.
 """
 ```
 
-### 3-4. 메인 실행 흐름
+### 3-4. Main Execution Flow
 ```python
 """
-1. check_previous_quiz()  # 어제 퀴즈 채점
-2. quiz = select_quiz()   # 오늘 퀴즈 선택
-3. send_quiz(quiz)        # 슬랙 발송
-4. quiz_bank.json 저장
+1. check_previous_quiz()  # Grade yesterday's quiz
+2. quiz = select_quiz()   # Select today's quiz
+3. send_quiz(quiz)        # Send to Slack
+4. Save quiz_bank.json
 """
 ```
 
-### 3-5. 필요 라이브러리
-- `requests` (Slack API 호출)
-- 표준 라이브러리: `json`, `datetime`, `os`
+### 3-5. Required Libraries
+- `requests` (Slack API calls)
+- Standard library: `json`, `datetime`, `os`
 
-## Step 4: GitHub Actions 워크플로우 작성
+## Step 4: Write GitHub Actions Workflow
 
 `.github/workflows/daily-quiz.yml`:
 
@@ -184,9 +183,9 @@ name: Daily Quiz
 
 on:
   schedule:
-    # 매일 11:00 UTC = 20:00 KST
+    # Every day at 11:00 UTC = 20:00 KST
     - cron: '0 11 * * *'
-  workflow_dispatch: # 수동 실행 가능
+  workflow_dispatch: # Can also be triggered manually
 
 jobs:
   send-quiz:
@@ -216,27 +215,27 @@ jobs:
           git push
 ```
 
-## Step 5: /oh-my-study-with-me:study 스킬 연동
+## Step 5: Integrate with /oh-my-study-with-me:study Skill
 
-study 스킬의 Phase 3 (검증) 단계에서, 검증에 사용한 질문을 자동으로 quiz_bank.json에 추가하는 로직을 포함한다.
+In Phase 3 (Verification) of the study skill, include logic to automatically add the verification questions used during that phase to quiz_bank.json.
 
-### 퀴즈 생성 규칙
-- Phase 3에서 사용한 검증 질문을 기반으로 퀴즈를 만든다.
-- 각 퀴즈에 keywords를 반드시 포함한다 (핵심 개념어 5~8개).
-- min_keyword_match는 키워드 수의 약 30%로 설정 (예: 키워드 7개 → min 2).
-- id 형식: `{카테고리}-{순번}` (예: kafka-001, redis-003).
-- box는 1, next_review는 내일 날짜로 초기화.
-- 중복 방지: 같은 question이 이미 있으면 추가하지 않는다.
+### Quiz Generation Rules
+- Create quizzes based on the verification questions used in Phase 3.
+- Always include keywords in each quiz (5-8 key concept terms).
+- Set min_keyword_match to approximately 30% of the keyword count (e.g., 7 keywords → min 2).
+- ID format: `{category}-{sequence}` (e.g., kafka-001, redis-003).
+- Initialize box to 1 and next_review to tomorrow's date.
+- Duplicate prevention: do not add a quiz if the same question already exists.
 
-## Step 6: 구축 완료 확인
+## Step 6: Verify Setup Complete
 
-모든 파일이 생성되면:
-1. `python quizzes/quiz_runner.py`로 로컬 테스트 (환경변수 세팅 필요)
-2. GitHub에 푸시
-3. Actions 탭에서 "Daily Quiz" 워크플로우 수동 실행
-4. Slack 채널에 퀴즈가 도착하는지 확인
+Once all files are created:
+1. Run `python quizzes/quiz_runner.py` for local testing (environment variables must be set)
+2. Push to GitHub
+3. Manually trigger the "Daily Quiz" workflow from the Actions tab
+4. Confirm the quiz arrives in the Slack channel
 
-## 주의사항
-- SLACK_BOT_TOKEN은 절대 코드에 직접 넣지 않는다. 반드시 GitHub Secrets 사용.
-- quiz_bank.json이 비어있으면 "아직 등록된 퀴즈가 없습니다. /oh-my-study-with-me:study로 학습을 시작하세요!" 메시지를 보낸다.
-- GitHub Actions 크론은 정확한 시간 보장이 안 될 수 있다 (최대 15분 지연).
+## Notes
+- Never put SLACK_BOT_TOKEN directly in the code. Always use GitHub Secrets.
+- If quiz_bank.json is empty, send a message: "No quizzes registered yet. Start studying with /oh-my-study-with-me:study!"
+- GitHub Actions cron does not guarantee exact timing (up to 15 minutes delay).

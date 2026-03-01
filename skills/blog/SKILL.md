@@ -1,230 +1,230 @@
 ---
-description: 기술 블로그 글쓰기 세션. 오웰/진서/그레이엄 철학과 Toulmin 논증, Steel Man 반박을 적용한 담백하고 정직한 기술 글을 작성합니다. 사용자가 블로그, 글쓰기, 기술 글을 언급하면 이 스킬을 사용합니다.
-argument-hint: "[주제]" 또는 "review"
+description: Technical blog writing session. Writes clear and honest technical content applying Orwell/Zinsser/Graham philosophy, Toulmin argumentation, and Steel Man rebuttal. Use this skill when the user mentions blog, writing, or technical articles.
+argument-hint: "[topic]" or "review"
 user-invocable: true
 ---
 
-# Blog - 기술 블로그 글쓰기 스킬
+# Blog - Technical Blog Writing Skill
 
-인자: $ARGUMENTS
+Argument: $ARGUMENTS
 
 ---
 
-## 글쓰기 철학
+## Writing Philosophy
 
-이 스킬의 글쓰기는 아래 원칙에 기반한다. 모든 단계에서 이 원칙을 적용한다.
+The writing in this skill is grounded in the following principles. Apply them at every stage.
 
-### 1. 글은 생각을 완성하는 과정이다
+### 1. Writing is the process of completing thought
 
 > "Writing about something, even something you know well, usually reveals that you didn't know it as well as you thought." — Paul Graham
 
-초안이 엉망인 것은 당연하다. 생각이 아직 완성되지 않았기 때문이다.
-글을 쓰면서 비로소 생각이 정리된다. 따라서 "완벽하게 이해한 뒤 쓴다"가 아니라
-"쓰면서 이해를 완성한다"가 올바른 순서다.
+It is natural for a first draft to be a mess. The thinking is not yet complete.
+Writing is how thought gets organized. Therefore, the correct order is not
+"understand perfectly, then write" — it is "write to complete the understanding."
 
-### 2. 명확함은 윤리적 선택이다
+### 2. Clarity is an ethical choice
 
-> "불명확한 언어는 생각을 숨기고 책임을 회피하게 만든다." — George Orwell
+> "The great enemy of clear language is insincerity." — George Orwell
 
-모호하게 쓰는 것은 독자를 속이는 것이다.
-기술 글에서 "적절히 처리된다", "효율적으로 동작한다" 같은 표현은 아무것도 말하지 않는다.
-구체적으로 쓴다. 측정할 수 있게 쓴다.
+Writing vaguely is deceiving the reader.
+In technical writing, phrases like "handled appropriately" or "works efficiently" say nothing.
+Write concretely. Write in measurable terms.
 
-### 3. 단순함은 단순한 생각이 아니다
+### 3. Simplicity is not simple thinking
 
 > "The secret of good writing is to strip every sentence to its cleanest components." — William Zinsser
 
-복잡한 개념을 단순하게 쓰는 것이 가장 어렵다.
-클러터(clutter)를 제거한다는 것은 내용을 줄이는 것이 아니라, 내용을 더 잘 보이게 하는 것이다.
+Writing complex ideas simply is the hardest thing of all.
+Stripping clutter does not mean reducing content — it means making the content more visible.
 
-### 4. 지적 정직성이 설득력을 만든다
+### 4. Intellectual honesty creates persuasion
 
-> "어떤 이론도 증명될 수 없고, 오직 반증될 수 있을 뿐이다." — Karl Popper
+> "A theory that is not refutable by any conceivable event is non-scientific." — Karl Popper
 
-자신의 주장의 약점을 스스로 드러내는 글이 더 신뢰받는다.
-"이 방식이 최고다"보다 "이 방식을 선택한 이유는 X다. 단, Y 상황에서는 Z가 더 적합하다"가 전문가의 언어다.
-
----
-
-## 문체 규칙
-
-### 담백한 문장
-
-- **비유적 표현을 자제한다.** 비유 대신 구체적 사례와 데이터를 쓴다.
-  - ❌ "카프카는 데이터의 고속도로다"
-  - ✅ "카프카는 프로듀서와 컨슈머 사이에서 메시지를 순서대로 저장하고 전달한다"
-- **수식어를 의심한다.** 모든 형용사와 부사에게 "너는 왜 여기 있는가?"를 묻는다.
-  - ❌ "매우 빠르게 처리된다"
-  - ✅ "P99 레이턴시 기준 47ms 이내로 처리된다"
-- **능동태로 쓴다.** 행위자를 숨기지 않는다.
-  - ❌ "설정이 변경되었다"
-  - ✅ "프로듀서가 acks 설정을 all로 변경한다"
-- **짧은 단어가 가능하면 긴 단어를 쓰지 않는다.** (오웰 규칙 2)
-
-### 기술 용어 처리
-
-- **기술 용어는 필요한 경우에만 쓴다.** 일상 표현으로 대체 가능하면 대체한다.
-- **핵심 기술 용어는 영어 원문을 병기한다.**
-  - 예: "카프카의 consumer group은 같은 topic을 구독하는 컨슈머들의 논리적 묶음이다."
-  - 이때 consumer group, topic 같은 핵심 개념어만 영어로 쓴다. 모든 단어를 영어로 쓰지 않는다.
-- **처음 등장하는 용어는 한번 설명하고, 이후에는 설명 없이 쓴다.**
-  - 예: "ISR(In-Sync Replica, 리더와 동기화가 완료된 복제본)은 ..." → 이후 "ISR은 ..."
-
-### 문장 리듬
-
-- **같은 길이의 문장을 반복하지 않는다.** 짧은 문장과 긴 문장을 섞는다.
-- **핵심 주장은 짧은 문장으로 끊는다.** 전후의 맥락은 좀 더 길게 쓴다.
-- **한 단락은 하나의 생각만 담는다.** 2~4문장이 적당하다.
+Writing that exposes the weaknesses of its own argument earns more trust.
+"This is the best approach" is weaker than "I chose this approach because of X. That said, in Y situations, Z is more appropriate." That is the language of an expert.
 
 ---
 
-## 논증 구조
+## Style Rules
 
-### Toulmin 모델 적용
+### Plain sentences
 
-모든 기술적 주장에 이 구조를 의식적으로 적용한다:
+- **Avoid figurative language.** Use concrete examples and data instead of metaphors.
+  - ❌ "Kafka is the highway of data"
+  - ✅ "Kafka stores and delivers messages in order between producers and consumers"
+- **Question every modifier.** Ask every adjective and adverb: "Why are you here?"
+  - ❌ "Processed very quickly"
+  - ✅ "Processed within 47ms at the P99 latency threshold"
+- **Write in active voice.** Do not hide the actor.
+  - ❌ "The configuration was changed"
+  - ✅ "The producer changes the acks setting to all"
+- **Never use a long word where a short one will do.** (Orwell's Rule 2)
+
+### Handling technical terms
+
+- **Use technical terms only when necessary.** Replace with plain language when possible.
+- **Write core technical terms in their original English.**
+  - Example: "Kafka's consumer group is a logical grouping of consumers that subscribe to the same topic."
+  - Only core concept words like consumer group and topic are written in English. Not every word.
+- **Introduce a term with an explanation on first use, then use it without explanation thereafter.**
+  - Example: "ISR (In-Sync Replica, a replica that has fully synchronized with the leader) is ..." → After that: "ISR is ..."
+
+### Sentence rhythm
+
+- **Do not repeat sentences of the same length.** Mix short and long sentences.
+- **State core claims in short sentences.** Surrounding context can be longer.
+- **Each paragraph contains only one idea.** Two to four sentences is the right amount.
+
+---
+
+## Argumentation Structure
+
+### Applying the Toulmin Model
+
+Apply this structure consciously to every technical claim:
 
 ```
-주장(Claim): "카프카 프로듀서의 acks는 all로 설정해야 한다."
-근거(Grounds): "acks=1일 때 리더 장애 시 데이터 유실이 발생한다."
-연결(Warrant): "금융 도메인에서 메시지 유실은 곧 자산 손실이다."
-한정(Qualifier): "단, 로그 수집처럼 일부 유실이 허용되는 경우는 acks=1도 합리적이다."
-반론 인정(Rebuttal): "acks=all은 지연 시간이 증가한다. 초당 처리량이 중요한 시스템에서는 트레이드오프를 고려해야 한다."
+Claim:    "The Kafka producer's acks must be set to all."
+Grounds:  "With acks=1, data loss occurs when the leader fails."
+Warrant:  "In the financial domain, message loss equals asset loss."
+Qualifier: "However, for cases where some loss is acceptable — such as log collection — acks=1 is also reasonable."
+Rebuttal: "acks=all increases latency. In systems where throughput matters, this trade-off must be considered."
 ```
 
-### Steel Man 적용
+### Applying Steel Man
 
-반대 의견을 다룰 때, 가장 약한 형태가 아니라 **가장 강한 형태로 재구성한 후** 반박한다.
+When addressing opposing views, reconstruct them in their **strongest form** before rebutting.
 
-- ❌ "어떤 사람들은 잘 모르고 acks=0을 쓴다"
-- ✅ "acks=0을 선택하는 가장 강한 근거는 지연 시간 최소화다. 실시간 센서 데이터처럼 개별 메시지의 유실보다 전체 처리 속도가 중요한 시스템에서 이 선택은 합리적이다. 다만 이 글의 맥락인 결제 시스템에서는 ..."
+- ❌ "Some people use acks=0 without really knowing what they're doing"
+- ✅ "The strongest case for choosing acks=0 is latency minimization. In systems like real-time sensor data — where overall throughput matters more than the loss of any individual message — this choice is reasonable. However, in the payment system context of this article ..."
 
-### 회의론적 자세
+### Skeptical stance
 
-- **과도한 확신을 피한다.** "X는 반드시 ~다"보다 "현재 구조에서 X는 ~로 판단된다"
-- **반증 가능하게 쓴다.** 주장할 때, 어떤 조건이면 이 주장이 틀릴 수 있는지를 안다.
-- **출처를 밝힌다.** 독자가 검증할 수 있게 한다.
+- **Avoid overconfidence.** Prefer "X is judged to be ~ under the current architecture" over "X must always be ~"
+- **Write falsifiably.** When making a claim, know under what conditions that claim could be wrong.
+- **Cite sources.** Let the reader verify.
 
 ---
 
-## 글 구조 템플릿
+## Post Structure Templates
 
-### 기본 구조 (PAS 기반)
+### Default Structure (PAS-based)
 
 ```markdown
-# [제목]
+# [Title]
 
-## 문제
-[이 글이 다루는 근본 문제. 독자가 "아, 이거 나도 궁금했어"라고 느끼게]
+## The Problem
+[The fundamental problem this post addresses. Make the reader think "I've wondered about this too."]
 
-## 왜 이게 문제인가
-[이 문제를 해결하지 않으면 발생하는 구체적 결과]
+## Why This Is a Problem
+[The concrete consequences of leaving this problem unsolved]
 
-## 핵심 원리
-[문제 해결의 핵심 개념을 단계적으로 풀어감]
-[주장 → 근거 → 한정 → 반론 인정 구조를 자연스럽게 녹여서]
+## The Core Principle
+[Unpack the key concepts behind the solution step by step]
+[Weave in the Claim → Grounds → Qualifier → Rebuttal structure naturally]
 
-## 실전에서는
-[구현 코드, 설정 예시, 또는 설계 다이어그램]
-[구체적 수치와 측정 결과 포함]
+## In Practice
+[Implementation code, configuration examples, or architecture diagrams]
+[Include specific numbers and measured results]
 
-## 트레이드오프
-[이 방식의 한계와 대안. 지적 정직성의 핵심 구간]
+## Trade-offs
+[The limits of this approach and alternatives. The key section for intellectual honesty]
 
-## 정리
-[핵심 한 문장. 다음에 이어서 읽으면 좋은 것]
+## Summary
+[One core sentence. What to read next]
 ```
 
-### 개발기/도입기 구조 (Story Spine 기반)
+### Development Journal / Adoption Story Structure (Story Spine-based)
 
 ```markdown
-# [제목]
+# [Title]
 
-## 배경
-["한때 우리는 _____ 했다" — 초기 상황]
+## Background
+["Once upon a time, we did _____" — the initial situation]
 
-## 문제 발견
-["그런데 어느 날 _____ 문제가 생겼다" — 발단]
+## Discovering the Problem
+["But one day, _____ problem appeared" — the inciting incident]
 
-## 탐색
-["그래서 _____ 를 시도했다" — 검토한 대안들과 각각의 장단점]
+## Exploration
+["So we tried _____" — alternatives considered and their pros and cons]
 
-## 선택과 구현
-["마침내 _____ 로 해결했다" — 최종 선택 이유 + 구현 과정]
+## The Decision and Implementation
+["Finally, we solved it with _____" — the final choice rationale + implementation]
 
-## 결과
-[도입 전후 비교. 구체적 수치]
+## Results
+[Before and after comparison. Concrete numbers]
 
-## 회고
-[잘된 점, 아쉬운 점, 다시 한다면 다르게 할 것]
+## Retrospective
+[What went well, what fell short, what we would do differently]
 ```
 
 ---
 
-## Phase별 워크플로우
+## Phase-by-Phase Workflow
 
-### Phase 1: 뼈대 잡기
+### Phase 1: Framing the Skeleton
 
-1. **핵심 메시지를 한 문장으로 쓴다.** 이 글을 읽은 독자가 한 가지만 기억한다면 무엇이어야 하는가?
-2. **글 구조 템플릿을 선택한다** (기본 / 개발기).
-3. **각 섹션의 핵심을 한 줄씩 적는다.** 이것이 글의 뼈대다.
-4. 사용자에게 뼈대를 보여주고 피드백을 받는다.
+1. **Write the core message in one sentence.** If the reader remembers only one thing from this post, what should it be?
+2. **Choose the post structure template** (Default / Development Journal).
+3. **Write one line for each section's core point.** This is the skeleton of the post.
+4. Show the skeleton to the user and collect feedback.
 
-### Phase 2: 초안 작성
+### Phase 2: Writing the Draft
 
-1. 뼈대를 기반으로 초안을 작성한다.
-2. 이때 **문체 규칙**과 **논증 구조**를 적용한다.
-3. /oh-my-study-with-me:study 세션에서 나온 내용이 있으면 Phase 2~3 대화 내용을 활용한다.
-4. 코드 예시가 필요하면 핵심만 포함한다. 전체 코드를 붙이지 않는다.
+1. Write the draft based on the skeleton.
+2. Apply **Style Rules** and **Argumentation Structure** throughout.
+3. If content from a `/oh-my-study-with-me:study` session exists, draw on Phase 2–3 conversation content.
+4. If code examples are needed, include only the essential parts. Do not paste the entire codebase.
 
-### Phase 3: 자가 검수 (Kill Your Darlings)
+### Phase 3: Self-Review (Kill Your Darlings)
 
-초안 완성 후, 아래 체크리스트로 검수한다:
+After completing the draft, review it against this checklist:
 
-**오웰 체크**
-- [ ] 진부한 비유를 쓰지 않았는가?
-- [ ] 짧은 단어로 가능한데 긴 단어를 쓴 곳은 없는가?
-- [ ] 뺄 수 있는 단어를 모두 뺐는가?
-- [ ] 수동태를 능동태로 바꿀 수 있는 곳은 없는가?
-- [ ] 일상 표현이 있는데 전문용어를 쓴 곳은 없는가?
+**Orwell Check**
+- [ ] Are there no tired or cliched metaphors?
+- [ ] Is there any place where a longer word was used when a shorter one would do?
+- [ ] Have all removable words been removed?
+- [ ] Are there any places where passive voice can be made active?
+- [ ] Is there any place where a technical term was used when plain language would work?
 
-**논증 체크**
-- [ ] 모든 주장에 근거가 있는가?
-- [ ] 한정어를 적절히 사용했는가? (과도한 확신은 없는가?)
-- [ ] 반론을 Steel Man으로 다루었는가?
-- [ ] 트레이드오프를 명시했는가?
+**Argumentation Check**
+- [ ] Does every claim have grounds?
+- [ ] Are qualifiers used appropriately? (Is there any overconfidence?)
+- [ ] Are opposing views addressed with Steel Man?
+- [ ] Are trade-offs explicitly stated?
 
-**가독성 체크**
-- [ ] 한 단락이 하나의 생각만 담고 있는가?
-- [ ] 문장 길이에 변주가 있는가?
-- [ ] 핵심 기술 용어만 영어로 병기했는가? (남용은 없는가?)
-- [ ] 처음 등장하는 용어를 설명했는가?
+**Readability Check**
+- [ ] Does each paragraph contain only one idea?
+- [ ] Is there variation in sentence length?
+- [ ] Are only core technical terms written in English? (No overuse?)
+- [ ] Are first-use terms explained?
 
-**Kill Your Darlings 체크**
-- [ ] "내가 잘 썼다"고 느끼는 문장이 있으면, 그것이 독자를 위한 것인가 나를 위한 것인가?
-- [ ] 자기 과시를 위한 문장은 삭제했는가?
+**Kill Your Darlings Check**
+- [ ] If there is a sentence you feel proud of, is it for the reader or for yourself?
+- [ ] Have all sentences written for self-display been deleted?
 
-검수 결과를 사용자에게 보여주고, 수정한 최종본을 제시한다.
+Show the review results to the user, then present the revised final version.
 
-### Phase 4: 저장
+### Phase 4: Saving
 
-- 사용자가 확인하면 Notion에 저장한다.
-- 저장 전 사용자에게 Notion 어디에 저장할지 확인한다.
-
----
-
-## /oh-my-study-with-me:study 연동
-
-학습한 내용을 블로그로 쓰고 싶을 때 이 스킬을 별도 호출한다.
-`/oh-my-study-with-me:study`의 Phase 4에서 저장된 학습 메모(`study-notes/`)를 소재로 활용할 수 있다.
-- 주제를 주면 관련 학습 메모가 있는지 `study-notes/`를 먼저 확인한다.
-- 학습 메모가 있으면 Phase 2~3 대화 내용을 기반으로 초안의 깊이를 높인다.
+- Once the user confirms, save to Notion.
+- Before saving, confirm with the user where in Notion to save it.
 
 ---
 
-## 주의사항
+## Integration with /oh-my-study-with-me:study
 
-- 책 내용을 그대로 옮기지 않는다. 사용자가 이해한 언어로 쓴다.
-- 블로그 글에 불필요한 인사말("안녕하세요, 오늘은 ~에 대해 알아보겠습니다")을 넣지 않는다.
-- 결론에 "감사합니다", "도움이 되셨으면 좋겠습니다" 같은 상투어를 넣지 않는다.
-- 글의 톤은 "지식 있는 동료와 대화하듯" — 딱딱하지 않되 가볍지 않게.
+When you want to turn learned content into a blog post, invoke this skill separately.
+Study notes saved in `study-notes/` from Phase 4 of `/oh-my-study-with-me:study` can be used as source material.
+- When given a topic, check `study-notes/` first to see if relevant study notes exist.
+- If study notes exist, use the Phase 2–3 conversation content to add depth to the draft.
+
+---
+
+## Important Notes
+
+- Do not copy book content verbatim. Write in the language the user has internalized.
+- Do not include unnecessary greetings in the blog post ("Hello, today we're going to learn about ~").
+- Do not end with filler phrases like "Thank you" or "I hope this was helpful."
+- The tone is "talking with a knowledgeable colleague" — not stiff, but not casual either.
