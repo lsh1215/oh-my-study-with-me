@@ -18,9 +18,22 @@ jobs:
           TITLE="${{ github.event.pull_request.title }}"
           AUTHOR="${{ github.event.pull_request.user.login }}"
           PR_URL="${{ github.event.pull_request.html_url }}"
+          PR_NUM="${{ github.event.pull_request.number }}"
           MERGE_SHA="${{ github.event.pull_request.merge_commit_sha }}"
           SHORT_SHA="${MERGE_SHA:0:7}"
           COMMIT_URL="${{ github.event.repository.html_url }}/commit/${MERGE_SHA}"
+          REPO="${{ github.event.repository.full_name }}"
+
+          # Detect type from PR title (conventional commits)
+          TYPE_EMOJI="📦"
+          case "${TITLE}" in
+            feat*)  TYPE_EMOJI="✨" ;;
+            fix*)   TYPE_EMOJI="🐛" ;;
+            docs*)  TYPE_EMOJI="📝" ;;
+            chore*) TYPE_EMOJI="🔧" ;;
+            refactor*) TYPE_EMOJI="♻️" ;;
+            test*)  TYPE_EMOJI="🧪" ;;
+          esac
 
           curl -s -X POST "${{ secrets.SLACK_WEBHOOK_URL }}" \
             -H 'Content-Type: application/json' \
@@ -28,53 +41,35 @@ jobs:
           {
             "blocks": [
               {
-                "type": "header",
-                "text": {
-                  "type": "plain_text",
-                  "text": "🔀 PR Merged to main",
-                  "emoji": true
-                }
-              },
-              {
                 "type": "section",
                 "text": {
                   "type": "mrkdwn",
-                  "text": "*${TITLE}*"
+                  "text": "${TYPE_EMOJI} *<${PR_URL}|#${PR_NUM}>* merged to \`main\`\n*${TITLE}*"
+                },
+                "accessory": {
+                  "type": "image",
+                  "image_url": "https://github.com/${{ github.event.pull_request.user.login }}.png",
+                  "alt_text": "${AUTHOR}"
                 }
               },
               {
-                "type": "section",
-                "fields": [
+                "type": "context",
+                "elements": [
                   {
                     "type": "mrkdwn",
-                    "text": "*Author:*\n${AUTHOR}"
-                  },
-                  {
-                    "type": "mrkdwn",
-                    "text": "*Size:*\n+${ADDITIONS} / -${DELETIONS}"
+                    "text": "👤 *${AUTHOR}*  ·  📊 \`+${ADDITIONS}\` \`-${DELETIONS}\`  ·  🏷️ \`${SHORT_SHA}\`"
                   }
                 ]
               },
               {
-                "type": "actions",
+                "type": "divider"
+              },
+              {
+                "type": "context",
                 "elements": [
                   {
-                    "type": "button",
-                    "text": {
-                      "type": "plain_text",
-                      "text": "View PR",
-                      "emoji": true
-                    },
-                    "url": "${PR_URL}"
-                  },
-                  {
-                    "type": "button",
-                    "text": {
-                      "type": "plain_text",
-                      "text": "View Commit (${SHORT_SHA})",
-                      "emoji": true
-                    },
-                    "url": "${COMMIT_URL}"
+                    "type": "mrkdwn",
+                    "text": "<${PR_URL}|View PR>  ·  <${COMMIT_URL}|View Commit>  ·  ${REPO}"
                   }
                 ]
               }
