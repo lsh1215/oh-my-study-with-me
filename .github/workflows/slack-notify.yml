@@ -45,11 +45,6 @@ jobs:
                 "text": {
                   "type": "mrkdwn",
                   "text": "${TYPE_EMOJI} *<${PR_URL}|#${PR_NUM}>* merged to \`main\`\n*${TITLE}*"
-                },
-                "accessory": {
-                  "type": "image",
-                  "image_url": "https://github.com/${{ github.event.pull_request.user.login }}.png",
-                  "alt_text": "${AUTHOR}"
                 }
               },
               {
