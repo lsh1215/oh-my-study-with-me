@@ -1,0 +1,68 @@
+name: Release
+
+on:
+  push:
+    tags:
+      - 'v*'
+
+permissions:
+  contents: write
+
+jobs:
+  validate:
+    name: Pre-release Validation
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Extract tag version
+        id: tag
+        run: echo "version=${GITHUB_REF#refs/tags/v}" >> $GITHUB_OUTPUT
+
+      - name: Check tag matches plugin.json
+        run: |
+          PLUGIN_VER=$(jq -r '.version' .claude-plugin/plugin.json)
+          TAG_VER="${{ steps.tag.outputs.version }}"
+
+          if [ "$PLUGIN_VER" != "$TAG_VER" ]; then
+            echo "::error::Tag v${TAG_VER} does not match plugin.json version ${PLUGIN_VER}"
+            exit 1
+          fi
+          echo "✓ Tag v${TAG_VER} matches plugin.json"
+
+      - name: Check RELEASE_NOTES.md has entry
+        run: |
+          TAG_VER="${{ steps.tag.outputs.version }}"
+          if ! grep -q "## v${TAG_VER}" RELEASE_NOTES.md; then
+            echo "::error::RELEASE_NOTES.md missing entry for v${TAG_VER}"
+            exit 1
+          fi
+          echo "✓ RELEASE_NOTES.md has entry for v${TAG_VER}"
+
+  release:
+    name: Create GitHub Release
+    needs: validate
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Extract release notes for this version
+        id: notes
+        run: |
+          TAG_VER="${GITHUB_REF#refs/tags/v}"
+          # Extract section for this version from RELEASE_NOTES.md
+          NOTES=$(sed -n "/^## v${TAG_VER}/,/^## v/p" RELEASE_NOTES.md | sed '$d')
+          if [ -z "$NOTES" ]; then
+            # If it's the last section, grab until EOF
+            NOTES=$(sed -n "/^## v${TAG_VER}/,\$p" RELEASE_NOTES.md)
+          fi
+          # Write to file for the release action
+          echo "$NOTES" > /tmp/release-notes.md
+
+      - name: Create GitHub Release
+        uses: softprops/action-gh-release@v2
+        with:
+          body_path: /tmp/release-notes.md
+          generate_release_notes: false
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

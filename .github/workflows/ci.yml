@@ -1,0 +1,137 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+permissions:
+  contents: read
+
+jobs:
+  version-consistency:
+    name: Version Consistency
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Check version sync
+        run: |
+          PLUGIN_VER=$(jq -r '.version' .claude-plugin/plugin.json)
+          MARKET_VER=$(jq -r '.plugins[0].version' .claude-plugin/marketplace.json)
+
+          echo "plugin.json version:      $PLUGIN_VER"
+          echo "marketplace.json version: $MARKET_VER"
+
+          if [ "$PLUGIN_VER" != "$MARKET_VER" ]; then
+            echo "::error::Version mismatch! plugin.json ($PLUGIN_VER) != marketplace.json ($MARKET_VER)"
+            exit 1
+          fi
+          echo "✓ Versions are in sync: $PLUGIN_VER"
+
+  skill-validation:
+    name: Skill Validation
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Check all skills have SKILL.md
+        run: |
+          ERRORS=0
+          for dir in skills/*/; do
+            skill=$(basename "$dir")
+            if [ ! -f "${dir}SKILL.md" ]; then
+              echo "::error::Missing SKILL.md in ${dir}"
+              ERRORS=$((ERRORS + 1))
+            else
+              echo "✓ ${dir}SKILL.md exists"
+            fi
+          done
+          if [ $ERRORS -gt 0 ]; then
+            echo "::error::$ERRORS skill(s) missing SKILL.md"
+            exit 1
+          fi
+
+      - name: Validate SKILL.md frontmatter
+        run: |
+          ERRORS=0
+          for file in skills/*/SKILL.md; do
+            # Check that file starts with ---
+            if ! head -1 "$file" | grep -q '^---$'; then
+              echo "::error::${file} missing frontmatter delimiter"
+              ERRORS=$((ERRORS + 1))
+              continue
+            fi
+
+            # Check required frontmatter fields
+            FRONTMATTER=$(sed -n '/^---$/,/^---$/p' "$file")
+            for field in description; do
+              if ! echo "$FRONTMATTER" | grep -q "^${field}:"; then
+                echo "::error::${file} missing required frontmatter field: ${field}"
+                ERRORS=$((ERRORS + 1))
+              fi
+            done
+            echo "✓ ${file} frontmatter valid"
+          done
+          if [ $ERRORS -gt 0 ]; then
+            exit 1
+          fi
+
+  router-validation:
+    name: Router Validation
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: Validate skill-router syntax
+        run: node --check scripts/skill-router.mjs
+
+      - name: Check router references valid skills
+        run: |
+          ERRORS=0
+          # Extract skill file references from router
+          SKILL_FILES=$(grep -oP "file:\s*[\"']([^\"']+)[\"']" scripts/skill-router.mjs | grep -oP "[\"']([^\"']+)[\"']" | tr -d "\"'")
+          for ref in $SKILL_FILES; do
+            if [ ! -f "skills/${ref}" ]; then
+              echo "::error::Router references non-existent skill: skills/${ref}"
+              ERRORS=$((ERRORS + 1))
+            else
+              echo "✓ skills/${ref} exists"
+            fi
+          done
+          if [ $ERRORS -gt 0 ]; then
+            exit 1
+          fi
+
+  readme-sync:
+    name: README Sync Check
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Check all README variants exist
+        run: |
+          ERRORS=0
+          for lang in "" ".ko" ".ja" ".zh"; do
+            FILE="README${lang}.md"
+            if [ ! -f "$FILE" ]; then
+              echo "::error::Missing ${FILE}"
+              ERRORS=$((ERRORS + 1))
+            else
+              echo "✓ ${FILE} exists"
+            fi
+          done
+          if [ $ERRORS -gt 0 ]; then
+            exit 1
+          fi
+
+      - name: Check README version references
+        run: |
+          PLUGIN_VER=$(jq -r '.version' .claude-plugin/plugin.json)
+          echo "Current version: $PLUGIN_VER"
+          echo "Note: README version references are advisory (not blocking)"
