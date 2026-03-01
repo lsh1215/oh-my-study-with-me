@@ -17,11 +17,11 @@ First Principles 기반 기술 학습 플러그인 for Claude Code.
 ## 설치
 
 ```bash
-# 로컬 테스트
-claude --plugin-dir /path/to/oh-my-study-with-me
+# 1. 마켓플레이스 등록
+claude marketplace add oh-my-study-with-me https://github.com/lsh1215/oh-my-study-with-me.git
 
-# 마켓플레이스에서 설치
-claude plugin install oh-my-study-with-me@marketplace-name
+# 2. 플러그인 설치
+claude plugin install oh-my-study-with-me@oh-my-study-with-me
 ```
 
 ## 사용법
@@ -94,7 +94,8 @@ your-project/
 ```
 oh-my-study-with-me/
 ├── .claude-plugin/
-│   └── plugin.json           # 매니페스트
+│   ├── plugin.json           # 플러그인 매니페스트
+│   └── marketplace.json      # 마켓플레이스 매니페스트
 ├── skills/
 │   ├── index.md              # 스킬 인덱스 + 연동 관계
 │   ├── study/SKILL.md

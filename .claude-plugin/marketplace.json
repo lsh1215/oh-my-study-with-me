@@ -1,0 +1,22 @@
+{
+  "$schema": "https://anthropic.com/claude-code/marketplace.schema.json",
+  "name": "oh-my-study-with-me",
+  "description": "First Principles 기반 기술 학습 플러그인 - PDF 학습, 구조화된 노트, Slack 퀴즈, 블로그, Docker 실습",
+  "owner": {
+    "name": "leesanghun"
+  },
+  "plugins": [
+    {
+      "name": "oh-my-study-with-me",
+      "description": "First Principles 기반 기술 학습 플러그인. 책 PDF 학습, 구조화된 노트 생성, Slack 일일 퀴즈, 기술 블로그 글쓰기, Docker 실습 환경을 하나의 워크플로우로 통합합니다.",
+      "version": "0.1.0",
+      "author": {
+        "name": "leesanghun"
+      },
+      "source": "./",
+      "category": "education",
+      "homepage": "https://github.com/lsh1215/oh-my-study-with-me",
+      "tags": ["study", "learning", "first-principles", "spaced-repetition", "blog", "lab", "quiz"]
+    }
+  ]
+}
