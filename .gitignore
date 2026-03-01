@@ -10,3 +10,6 @@ nul
 NUL
 .omx/
 .env
+
+# Korean reference docs (local only)
+docs/ko/
